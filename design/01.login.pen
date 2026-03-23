@@ -1,0 +1,2374 @@
+{
+  "version": "2.8",
+  "children": [
+    {
+      "type": "frame",
+      "id": "KapEm",
+      "x": 0,
+      "y": 0,
+      "name": "Login / Mobile",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "#020617",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "MSDoV",
+          "name": "Status Bar",
+          "width": "fill_container",
+          "height": 62,
+          "fill": "#020617",
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center"
+        },
+        {
+          "type": "frame",
+          "id": "lRUTB",
+          "name": "Content Wrapper",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            32,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "CVABP",
+              "name": "Header",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dA03S",
+                  "name": "App Name",
+                  "fill": "#F9FAFB",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "CameraKontrol",
+                  "fontFamily": "Inter",
+                  "fontSize": 28,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "riF9M",
+                  "name": "Subtitle",
+                  "fill": "#E5E7EB",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Inicia sesión para continuar",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "581Qh",
+              "name": "Form",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "YjHX1",
+                  "name": "Email Field",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CJ2Ly",
+                      "name": "Email Label",
+                      "fill": "#9CA3AF",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Correo electrónico",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "jiz7L",
+                      "name": "Email Input",
+                      "width": "fill_container",
+                      "height": 48,
+                      "fill": "#020617",
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "7UZM0",
+                          "name": "Email Placeholder",
+                          "fill": "#64748B",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "tu@email.com",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "0qD5E",
+                      "name": "Email Error",
+                      "fill": "#FCA5A5",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Este correo no es válido",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jpyXy",
+                  "name": "Password Field",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "i7RgW",
+                      "name": "Password Label",
+                      "fill": "#9CA3AF",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Contraseña",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sHkyS",
+                      "name": "Password Input",
+                      "width": "fill_container",
+                      "height": 48,
+                      "fill": "#020617",
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "padding": [
+                        0,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "O54Eb",
+                          "name": "Password Placeholder",
+                          "fill": "#64748B",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "••••••••",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "sYFWt",
+                      "name": "Password Error",
+                      "fill": "#FCA5A5",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "La contraseña es demasiado corta",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cA3Mw",
+                  "name": "General Error",
+                  "width": "fill_container",
+                  "fill": "#7F1D1D",
+                  "cornerRadius": 8,
+                  "layout": "vertical",
+                  "padding": [
+                    8,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KNomx",
+                      "name": "General Error Text",
+                      "fill": "#FECACA",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Ha ocurrido un error al iniciar sesión.",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZK6yR",
+                  "name": "Login Button",
+                  "width": "fill_container",
+                  "height": 52,
+                  "fill": "#22C55E",
+                  "cornerRadius": 999,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "KKhFd",
+                      "name": "Login Label",
+                      "fill": "#022C22",
+                      "content": "Iniciar sesión",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "cZEPc",
+              "name": "Links",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "cmXj6",
+                  "name": "Forgot Link",
+                  "fill": "#22C55E",
+                  "content": "¿Olvidaste tu contraseña?",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "vtrxn",
+                  "name": "Create Account Link",
+                  "fill": "#22C55E",
+                  "content": "Crear cuenta nueva",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "ubVhd",
+      "x": 420,
+      "y": 0,
+      "name": "Camera List / Mobile",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "#020617",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "lQt17",
+          "name": "Status Bar",
+          "width": "fill_container",
+          "height": 62,
+          "fill": "#020617",
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center"
+        },
+        {
+          "type": "frame",
+          "id": "CIWgq",
+          "name": "Content Wrapper",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "LGCNB",
+              "name": "Header",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sTTeh",
+                  "name": "Title",
+                  "fill": "#F9FAFB",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Tus cámaras",
+                  "fontFamily": "Inter",
+                  "fontSize": 24,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "PENHf",
+                  "name": "Subtitle",
+                  "fill": "#9CA3AF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Selecciona las cámaras que quieres controlar",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "m3fIo",
+              "name": "Actions",
+              "width": "fill_container",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "J4MCf",
+                  "name": "Add Camera Button",
+                  "width": "fill_container",
+                  "height": 40,
+                  "fill": "#22C55E",
+                  "cornerRadius": 999,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "wLk5r",
+                      "name": "Add Label",
+                      "fill": "#022C22",
+                      "content": "Agregar cámara",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Cqjmp",
+                  "name": "View Selected Button",
+                  "width": "fill_container",
+                  "height": 40,
+                  "cornerRadius": 999,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#22C55E"
+                  },
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "U2TQI",
+                      "name": "View Label",
+                      "fill": "#22C55E",
+                      "content": "Ver seleccionadas",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "j1KvK",
+              "name": "Camera List",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "wHifk",
+                  "name": "Camara 1",
+                  "width": "fill_container",
+                  "height": 68,
+                  "fill": "#020617",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#1F2937"
+                  },
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "88Adj",
+                      "name": "Info",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "SGQlW",
+                          "name": "Name",
+                          "fill": "#E5E7EB",
+                          "content": "Cámara Sala",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "FDa92",
+                          "name": "Id",
+                          "fill": "#64748B",
+                          "content": "ID: CAM-001",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "u0Ozc",
+                      "name": "Right",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "LDbmW",
+                          "name": "Status",
+                          "fill": "#064E3B",
+                          "cornerRadius": 999,
+                          "layout": "vertical",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "dHj94",
+                              "name": "Status Text",
+                              "fill": "#BBF7D0",
+                              "content": "Conectada",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "s3LQN",
+                          "name": "Checkbox",
+                          "width": 22,
+                          "height": 22,
+                          "fill": "#22C55E",
+                          "cornerRadius": 6,
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "oxClO",
+                              "name": "Check",
+                              "fill": "#022C22",
+                              "content": "✓",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rVUyY",
+                  "name": "Camara 2",
+                  "width": "fill_container",
+                  "height": 68,
+                  "fill": "#020617",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#1F2937"
+                  },
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "De0yg",
+                      "name": "Info",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Y8URL",
+                          "name": "Name",
+                          "fill": "#E5E7EB",
+                          "content": "Cámara Oficina",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "997Qk",
+                          "name": "Id",
+                          "fill": "#64748B",
+                          "content": "ID: CAM-002",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zWPyr",
+                      "name": "Right",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "yKZ0d",
+                          "name": "Status",
+                          "fill": "#064E3B",
+                          "cornerRadius": 999,
+                          "layout": "vertical",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mu2hH",
+                              "name": "Status Text",
+                              "fill": "#BBF7D0",
+                              "content": "Conectada",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Mk8Yb",
+                          "name": "Checkbox",
+                          "width": 22,
+                          "height": 22,
+                          "fill": "#22C55E",
+                          "cornerRadius": 6,
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "KrIte",
+                              "name": "Check",
+                              "fill": "#022C22",
+                              "content": "✓",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "700"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "0D2Sk",
+                  "name": "Camara 3",
+                  "width": "fill_container",
+                  "height": 68,
+                  "fill": "#020617",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#1F2937"
+                  },
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "7qBlM",
+                      "name": "Info",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "V86I6",
+                          "name": "Name",
+                          "fill": "#E5E7EB",
+                          "content": "Cámara Garage",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Zaz4t",
+                          "name": "Id",
+                          "fill": "#64748B",
+                          "content": "ID: CAM-003",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kAPYj",
+                      "name": "Right",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "4QeHf",
+                          "name": "Status",
+                          "fill": "#111827",
+                          "cornerRadius": 999,
+                          "layout": "vertical",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ehrxw",
+                              "name": "Status Text",
+                              "fill": "#9CA3AF",
+                              "content": "Sin conexión",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "fyLts",
+                          "name": "Checkbox",
+                          "width": 22,
+                          "height": 22,
+                          "cornerRadius": 6,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#4B5563"
+                          },
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "pPOod",
+                  "name": "Camara 4",
+                  "width": "fill_container",
+                  "height": 68,
+                  "fill": "#020617",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#1F2937"
+                  },
+                  "padding": [
+                    12,
+                    16
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "5zGYP",
+                      "name": "Info",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YQ0Zq",
+                          "name": "Name",
+                          "fill": "#E5E7EB",
+                          "content": "Cámara Exterior",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        },
+                        {
+                          "type": "text",
+                          "id": "iwPZ1",
+                          "name": "Id",
+                          "fill": "#64748B",
+                          "content": "ID: CAM-004",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "0L9hG",
+                      "name": "Right",
+                      "gap": 8,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "zZDUG",
+                          "name": "Status",
+                          "fill": "#111827",
+                          "cornerRadius": 999,
+                          "layout": "vertical",
+                          "padding": [
+                            4,
+                            8
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Hqwn5",
+                              "name": "Status Text",
+                              "fill": "#9CA3AF",
+                              "content": "Sin conexión",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dBbxR",
+                          "name": "Checkbox",
+                          "width": 22,
+                          "height": 22,
+                          "cornerRadius": 6,
+                          "stroke": {
+                            "thickness": 1,
+                            "fill": "#4B5563"
+                          },
+                          "layout": "vertical",
+                          "justifyContent": "center",
+                          "alignItems": "center"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "cvkTd",
+      "x": 840,
+      "y": 0,
+      "name": "Live View / Mobile",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "#020617",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "FmMbR",
+          "name": "Status Bar",
+          "width": "fill_container",
+          "height": 62,
+          "fill": "#020617",
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center"
+        },
+        {
+          "type": "frame",
+          "id": "81pPo",
+          "name": "Content Wrapper",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": [
+            16,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "5NIox",
+              "name": "Header",
+              "width": "fill_container",
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "nLIKR",
+                  "name": "Left",
+                  "layout": "vertical",
+                  "gap": 2,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tbusL",
+                      "name": "Title",
+                      "fill": "#F9FAFB",
+                      "content": "Vista en vivo",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "4fK3P",
+                      "name": "Subtitle",
+                      "fill": "#9CA3AF",
+                      "content": "4 cámaras seleccionadas",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "qYeoJ",
+                  "name": "Layout Toggle",
+                  "cornerRadius": 999,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#22C55E"
+                  },
+                  "gap": 4,
+                  "padding": [
+                    4,
+                    8
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "prPih",
+                      "name": "Layout Text",
+                      "fill": "#22C55E",
+                      "content": "2 x 2",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "500"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "rMzBj",
+              "name": "Info Bar",
+              "width": "fill_container",
+              "gap": 8,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "pKuK0",
+                  "name": "Dot",
+                  "width": 8,
+                  "height": 8,
+                  "fill": "#22C55E",
+                  "cornerRadius": 999,
+                  "layout": "vertical"
+                },
+                {
+                  "type": "text",
+                  "id": "Phze0",
+                  "name": "Info Text",
+                  "fill": "#9CA3AF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Transmitiendo en tiempo real desde cámaras conectadas",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "PPNoV",
+              "name": "Grid",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "OgnRk",
+                  "name": "Row 1",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VL2IF",
+                      "name": "Cam 1 Live",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": 120,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#0F172A",
+                            "position": 0
+                          },
+                          {
+                            "color": "#22C55E",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "cornerRadius": 16,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "BBc60",
+                          "name": "Overlay",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "padding": 8,
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "n9OYp",
+                              "name": "Top",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "827VB",
+                                  "name": "Name",
+                                  "fill": "#F9FAFB",
+                                  "content": "Cámara Sala",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "1Efuw",
+                                  "name": "Status",
+                                  "fill": "#22C55E",
+                                  "cornerRadius": 999,
+                                  "layout": "vertical",
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "lgeRX",
+                                      "name": "Status Text",
+                                      "fill": "#022C22",
+                                      "content": "EN LÍNEA",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "OmgFO",
+                              "name": "Bottom",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "HfTLQ",
+                                  "name": "Quality",
+                                  "fill": "#E5E7EB",
+                                  "content": "1080p • 30 fps",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "VuJEj",
+                                  "name": "Controls",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "WhsGP",
+                                      "name": "Mic",
+                                      "width": 20,
+                                      "height": 20,
+                                      "fill": "#020617",
+                                      "cornerRadius": 999,
+                                      "layout": "vertical"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "i3DkN",
+                                      "name": "More",
+                                      "width": 20,
+                                      "height": 20,
+                                      "fill": "#020617",
+                                      "cornerRadius": 999,
+                                      "layout": "vertical"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "47Zxs",
+                      "name": "Cam 2 Live",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "fill": {
+                        "type": "gradient",
+                        "gradientType": "linear",
+                        "enabled": true,
+                        "rotation": 120,
+                        "size": {
+                          "height": 1
+                        },
+                        "colors": [
+                          {
+                            "color": "#0F172A",
+                            "position": 0
+                          },
+                          {
+                            "color": "#22C55E",
+                            "position": 1
+                          }
+                        ]
+                      },
+                      "cornerRadius": 16,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "shjfV",
+                          "name": "Overlay",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "padding": 8,
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "X3bQZ",
+                              "name": "Top",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "yFXXX",
+                                  "name": "Name",
+                                  "fill": "#F9FAFB",
+                                  "content": "Cámara Oficina",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "GQbGh",
+                                  "name": "Status",
+                                  "fill": "#22C55E",
+                                  "cornerRadius": 999,
+                                  "layout": "vertical",
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "uvIaa",
+                                      "name": "Status Text",
+                                      "fill": "#022C22",
+                                      "content": "EN LÍNEA",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "700"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "1V5fJ",
+                              "name": "Bottom",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "UcwF7",
+                                  "name": "Quality",
+                                  "fill": "#E5E7EB",
+                                  "content": "1080p • 30 fps",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "1tOd7",
+                                  "name": "Controls",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "LPNTe",
+                                      "name": "Mic",
+                                      "width": 20,
+                                      "height": 20,
+                                      "fill": "#020617",
+                                      "cornerRadius": 999,
+                                      "layout": "vertical"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "hO3Wm",
+                                      "name": "More",
+                                      "width": 20,
+                                      "height": 20,
+                                      "fill": "#020617",
+                                      "cornerRadius": 999,
+                                      "layout": "vertical"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "SfGDf",
+                  "name": "Row 2",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "W95xr",
+                      "name": "Cam 3 Placeholder",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "cornerRadius": 16,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "6ZIZU",
+                          "name": "Inner",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "Y7wwc",
+                              "name": "Icon",
+                              "width": 32,
+                              "height": 32,
+                              "fill": "#020617",
+                              "cornerRadius": 999,
+                              "layout": "vertical"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Uxlqa",
+                              "name": "Text",
+                              "fill": "#6B7280",
+                              "content": "Sin transmisión",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "weYLA",
+                      "name": "Cam 4 Placeholder",
+                      "clip": true,
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "cornerRadius": 16,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "zjr4K",
+                          "name": "Inner",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "iAwlC",
+                              "name": "Icon",
+                              "width": 32,
+                              "height": 32,
+                              "fill": "#020617",
+                              "cornerRadius": 999,
+                              "layout": "vertical"
+                            },
+                            {
+                              "type": "text",
+                              "id": "875AK",
+                              "name": "Text",
+                              "fill": "#6B7280",
+                              "content": "Sin transmisión",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Jp3H5",
+      "x": 1260,
+      "y": 0,
+      "name": "Add Cameras / Mobile",
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "#020617",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "kUR0K",
+          "name": "Status Bar",
+          "width": "fill_container",
+          "height": 62,
+          "fill": "#020617",
+          "padding": [
+            0,
+            16
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center"
+        },
+        {
+          "type": "frame",
+          "id": "rRjtA",
+          "name": "Content Wrapper",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 20,
+          "padding": [
+            24,
+            20
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "j6mta",
+              "name": "Header",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "HfsJ8",
+                  "name": "Title",
+                  "fill": "#F9FAFB",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Agregar cámaras",
+                  "fontFamily": "Inter",
+                  "fontSize": 22,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "msyER",
+                  "name": "Subtitle",
+                  "fill": "#9CA3AF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Busca en tu red o agrega cámaras manualmente",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "72N3z",
+              "name": "Mode Switch",
+              "width": "fill_container",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "4fncu",
+                  "name": "Scan Tab",
+                  "width": "fill_container",
+                  "height": 34,
+                  "fill": "#22C55E",
+                  "cornerRadius": 999,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UQyUn",
+                      "name": "Scan Text",
+                      "fill": "#022C22",
+                      "content": "Buscar en red",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "QTPGh",
+                  "name": "Manual Tab",
+                  "width": "fill_container",
+                  "height": 34,
+                  "cornerRadius": 999,
+                  "stroke": {
+                    "thickness": 1,
+                    "fill": "#4B5563"
+                  },
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Nv260",
+                      "name": "Manual Text",
+                      "fill": "#E5E7EB",
+                      "content": "Agregar manual",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "kPMNB",
+              "name": "Scan Section",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LNZsl",
+                  "name": "Scan Info",
+                  "fill": "#9CA3AF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Escanea tu red local para encontrar cámaras compatibles (ONVIF / RTSP).",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "guEgg",
+                  "name": "Scan Button",
+                  "width": "fill_container",
+                  "height": 40,
+                  "fill": "#22C55E",
+                  "cornerRadius": 999,
+                  "layout": "vertical",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "B1yK4",
+                      "name": "Scan Label",
+                      "fill": "#022C22",
+                      "content": "Buscar cámaras en la red",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "K112m",
+                  "name": "Results Header",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "cZBR2",
+                      "name": "Results Title",
+                      "fill": "#E5E7EB",
+                      "content": "Cámaras encontradas",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "7VZsc",
+                      "name": "Results Count",
+                      "fill": "#9CA3AF",
+                      "content": "3 detectadas",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wKu4M",
+                  "name": "Results List",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "VH13U",
+                      "name": "Result 1",
+                      "width": "fill_container",
+                      "height": 52,
+                      "fill": "#020617",
+                      "cornerRadius": 12,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "padding": [
+                        10,
+                        12
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "1UD7n",
+                          "name": "Info",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PKbhJ",
+                              "name": "Name",
+                              "fill": "#E5E7EB",
+                              "content": "Cámara Sala (ONVIF)",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Ml9CV",
+                              "name": "Meta",
+                              "fill": "#64748B",
+                              "content": "192.168.1.10 • Puerto 554",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "c7ZKp",
+                          "name": "Right",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "5ckEQ",
+                              "name": "Status",
+                              "fill": "#22C55E",
+                              "content": "Conectable",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ljain",
+                              "name": "Check",
+                              "width": 20,
+                              "height": 20,
+                              "fill": "#22C55E",
+                              "cornerRadius": 6,
+                              "layout": "vertical",
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "xjOTm",
+                                  "name": "Icon",
+                                  "fill": "#022C22",
+                                  "content": "✓",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 13,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YvMo3",
+                      "name": "Result 2",
+                      "width": "fill_container",
+                      "height": 52,
+                      "fill": "#020617",
+                      "cornerRadius": 12,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "padding": [
+                        10,
+                        12
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "dX64o",
+                          "name": "Info",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "PAYZ3",
+                              "name": "Name",
+                              "fill": "#E5E7EB",
+                              "content": "Cámara Garage (RTSP)",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "NppwX",
+                              "name": "Meta",
+                              "fill": "#64748B",
+                              "content": "192.168.1.12 • Puerto 8554",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "kcj93",
+                          "name": "Right",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "aj4i2",
+                              "name": "Status",
+                              "fill": "#22C55E",
+                              "content": "Conectable",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "51DAK",
+                              "name": "Check",
+                              "width": 20,
+                              "height": 20,
+                              "cornerRadius": 6,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#4B5563"
+                              },
+                              "layout": "vertical",
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KcD73",
+                      "name": "Result 3",
+                      "width": "fill_container",
+                      "height": 52,
+                      "fill": "#020617",
+                      "cornerRadius": 12,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "padding": [
+                        10,
+                        12
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "aF8HR",
+                          "name": "Info",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "DTBgG",
+                              "name": "Name",
+                              "fill": "#E5E7EB",
+                              "content": "Cámara desconocida",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "id": "JYIbo",
+                              "name": "Meta",
+                              "fill": "#64748B",
+                              "content": "192.168.1.25 • Puerto 80",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "21Egd",
+                          "name": "Right",
+                          "gap": 6,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "n39NI",
+                              "name": "Status",
+                              "fill": "#FBBF24",
+                              "content": "Requiere credenciales",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "dAlA8",
+                              "name": "Check",
+                              "width": 20,
+                              "height": 20,
+                              "cornerRadius": 6,
+                              "stroke": {
+                                "thickness": 1,
+                                "fill": "#4B5563"
+                              },
+                              "layout": "vertical",
+                              "justifyContent": "center",
+                              "alignItems": "center"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GSQ25",
+                  "name": "Scan Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "bvVl6",
+                      "name": "Add Selected",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#22C55E",
+                      "cornerRadius": 999,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "j3dit",
+                          "name": "Label",
+                          "fill": "#022C22",
+                          "content": "Agregar seleccionadas",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nZ4qQ",
+                      "name": "Skip",
+                      "width": "fill_container",
+                      "height": 40,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "0HlFJ",
+                          "name": "Label",
+                          "fill": "#E5E7EB",
+                          "content": "Saltar y agregar manual",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "M30Dl",
+              "name": "Manual Section",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pd0x5",
+                  "name": "Manual Title",
+                  "fill": "#E5E7EB",
+                  "content": "Agregar cámara manualmente",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "WxPuO",
+                  "name": "Manual Info",
+                  "fill": "#9CA3AF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Completa los datos de conexión para una cámara específica.",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "n8pMi",
+                  "name": "Field Name",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "2dzXl",
+                      "name": "Label",
+                      "fill": "#9CA3AF",
+                      "content": "Nombre de la cámara",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "CXimn",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#020617",
+                      "cornerRadius": 10,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "hJCs2",
+                          "name": "Placeholder",
+                          "fill": "#64748B",
+                          "content": "Ej: Cámara Entrada",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "dkLh2",
+                  "name": "Field IP",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fJ9Ld",
+                      "name": "Label",
+                      "fill": "#9CA3AF",
+                      "content": "IP / Host",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "NJjZi",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#020617",
+                      "cornerRadius": 10,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "K8JIa",
+                          "name": "Placeholder",
+                          "fill": "#64748B",
+                          "content": "192.168.1.50",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "9Gyrq",
+                  "name": "Field Port",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5lX97",
+                      "name": "Label",
+                      "fill": "#9CA3AF",
+                      "content": "Puerto",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "pH14X",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#020617",
+                      "cornerRadius": 10,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GXYYG",
+                          "name": "Placeholder",
+                          "fill": "#64748B",
+                          "content": "554",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DJGxR",
+                  "name": "Field User",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "UyGjD",
+                      "name": "Label",
+                      "fill": "#9CA3AF",
+                      "content": "Usuario",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "QTETP",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#020617",
+                      "cornerRadius": 10,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GHhio",
+                          "name": "Placeholder",
+                          "fill": "#64748B",
+                          "content": "admin",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "lqASX",
+                  "name": "Field Pass",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "4wQ6f",
+                      "name": "Label",
+                      "fill": "#9CA3AF",
+                      "content": "Clave",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gE4o5",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#020617",
+                      "cornerRadius": 10,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "layout": "vertical",
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cesgi",
+                          "name": "Placeholder",
+                          "fill": "#64748B",
+                          "content": "••••••••",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "RHURq",
+                  "name": "Field Proto",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "jeuVk",
+                      "name": "Label",
+                      "fill": "#9CA3AF",
+                      "content": "Protocolo",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Mfzgy",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#020617",
+                      "cornerRadius": 10,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#1F2937"
+                      },
+                      "padding": [
+                        0,
+                        12
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "1mvNA",
+                          "name": "Value",
+                          "fill": "#E5E7EB",
+                          "content": "RTSP",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ommBi",
+                          "name": "Hint",
+                          "fill": "#22C55E",
+                          "content": "Cambiar",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GuRFX",
+                  "name": "Manual Actions",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "8crQQ",
+                      "name": "Test",
+                      "width": "fill_container",
+                      "height": 40,
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "thickness": 1,
+                        "fill": "#22C55E"
+                      },
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GdOMo",
+                          "name": "Label",
+                          "fill": "#22C55E",
+                          "content": "Probar conexión",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xSe6a",
+                      "name": "Save",
+                      "width": "fill_container",
+                      "height": 40,
+                      "fill": "#22C55E",
+                      "cornerRadius": 999,
+                      "layout": "vertical",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UUITI",
+                          "name": "Label",
+                          "fill": "#022C22",
+                          "content": "Guardar cámara",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hnqCb",
+              "name": "Cancel",
+              "width": "fill_container",
+              "height": 32,
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "3v3Bg",
+                  "name": "Label",
+                  "fill": "#9CA3AF",
+                  "content": "Cancelar y volver",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Camera {
+  id                   Int        @id @default(autoincrement())
+  name                 String
+  ip                   String
+  port                 Int        @default(554)
+  username             String?
+  password             String?
+  protocol             String     @default("rtsp")
+  rtspUrl              String?
+  isOnline             Boolean    @default(false)
+  isSelected           Boolean    @default(false)
+  lastSeenAt           DateTime?
+  recordingEnabled        Boolean   @default(false)
+  recordingStartTime      String?   // "HH:mm" ej. "08:00"
+  recordingEndTime        String?   // "HH:mm" ej. "18:00"
+  recordingFragmentMinutes Int?     // duración de cada fragmento en mins; null = 1 min
+  retentionDays         Int?       // días a conservar grabaciones; null = sin límite
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  recordings           Recording[]
+}
+
+model Recording {
+  id            Int      @id @default(autoincrement())
+  cameraId      Int
+  camera        Camera   @relation(fields: [cameraId], references: [id], onDelete: Cascade)
+  filePath      String
+  fileName      String
+  startedAt     DateTime
+  endedAt       DateTime
+  durationSecs  Int
+  fileSizeBytes Int?
+  createdAt     DateTime @default(now())
+
+  @@index([cameraId, startedAt])
+}
+
