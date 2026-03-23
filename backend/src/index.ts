@@ -53,6 +53,29 @@ app.get("/cameras", async (_req, res) => {
   res.json(cameras);
 });
 
+app.get("/cameras/discover", async (_req, res) => {
+  try {
+    const devices = await new Promise<any[]>((resolve, reject) => {
+      onvif.Discovery.probe((err: unknown, cams: any[]) => {
+        if (err) return reject(err);
+        const mapped = (cams || []).map((cam: any, index: number) => ({
+          id: index,
+          name: cam.name || cam.hostname || "Cámara ONVIF",
+          address: cam.address,
+          hostname: cam.hostname,
+          port: cam.port,
+          xaddr: cam.xaddrs?.[0],
+        }));
+        resolve(mapped);
+      });
+    });
+    res.json(devices);
+  } catch (err) {
+    console.error("Error discovering cameras", err);
+    res.status(500).json({ error: "Error buscando cámaras en la red" });
+  }
+});
+
 app.post("/cameras", async (req, res) => {
   try {
     const { name, ip, port, username, password, protocol, recordingEnabled, recordingStartTime, recordingEndTime, recordingFragmentMinutes, retentionDays } = req.body;
@@ -215,33 +238,6 @@ app.patch("/cameras/:id/online", async (req, res) => {
   }
 });
 
-
-app.get("/cameras/discover", async (_req, res) => {
-  try {
-    // Descubrimiento real ONVIF en la LAN usando broadcast.
-    const devices = await new Promise<any[]>((resolve, reject) => {
-      onvif.Discovery.probe((err: unknown, cams: any[]) => {
-        if (err) {
-          return reject(err);
-        }
-        const mapped = (cams || []).map((cam: any, index: number) => ({
-          id: index,
-          name: cam.name || cam.hostname || "C?mara ONVIF",
-          address: cam.address,
-          hostname: cam.hostname,
-          port: cam.port,
-          xaddr: cam.xaddrs?.[0],
-        }));
-        resolve(mapped);
-      });
-    });
-
-    res.json(devices);
-  } catch (err) {
-    console.error("Error discovering cameras", err);
-    res.status(500).json({ error: "Error buscando c?maras en la red" });
-  }
-});
 
 // Endpoint para streaming MJPEG desde RTSP
 app.get("/cameras/:id/stream", async (req, res) => {

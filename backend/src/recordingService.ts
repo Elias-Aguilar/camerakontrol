@@ -58,15 +58,40 @@ function resolveRecordingPath(r: { filePath: string; cameraId: number; fileName:
   const bases = [
     RECORDINGS_BASE,
     path.join(process.cwd(), "recordings"),
+    path.join(process.cwd(), "backend", "recordings"),
     path.join(__dirname, "..", "recordings"),
+    path.resolve(__dirname, "..", "recordings"),
   ];
-  const storedPath = path.normalize(r.filePath);
-  if (path.isAbsolute(storedPath) && fs.existsSync(storedPath)) return storedPath;
+  const storedPath = path.normalize(r.filePath.replace(/\//g, path.sep));
+  const toTry = [storedPath, path.resolve(storedPath)];
+  for (const p of toTry) {
+    if (p && fs.existsSync(p)) return p;
+  }
   for (const base of bases) {
+    if (!base) continue;
     const candidate = path.join(base, relPath);
-    if (fs.existsSync(candidate)) return candidate;
+    try {
+      if (fs.existsSync(candidate)) return candidate;
+    } catch {
+      // ignore
+    }
   }
   return null;
+}
+
+function removeEmptyDirsUpTo(filePath: string): void {
+  let dir = path.dirname(filePath);
+  for (let i = 0; i < 3; i++) {
+    if (!dir) break;
+    try {
+      if (fs.readdirSync(dir).length === 0) {
+        fs.rmdirSync(dir);
+        dir = path.dirname(dir);
+      } else break;
+    } catch {
+      break;
+    }
+  }
 }
 
 /** Duración en segundos hasta que termine la ventana */
@@ -198,9 +223,12 @@ async function runCleanup(): Promise<void> {
       if (fullPath) {
         try {
           fs.unlinkSync(fullPath);
+          removeEmptyDirsUpTo(fullPath);
         } catch (err) {
           console.warn(`[Recording] No se pudo borrar ${fullPath}:`, err);
         }
+      } else {
+        console.warn(`[Recording] No se encontró archivo para grabación ${r.id}: ${r.filePath}`);
       }
       await prisma.recording.delete({ where: { id: r.id } });
     }

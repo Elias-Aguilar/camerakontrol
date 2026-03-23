@@ -7,7 +7,7 @@ import { EditCameraScreen } from "./screens/EditCameraScreen";
 
 export function App() {
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#020617", color: "#F9FAFB" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#082610", color: "#F9FAFB", fontFamily: "Inter, sans-serif" }}>
       <Routes>
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/cameras" element={<CameraListScreen />} />

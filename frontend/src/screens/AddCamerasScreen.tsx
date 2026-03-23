@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type Discovered = {
@@ -19,9 +19,10 @@ export function AddCamerasScreen() {
     try {
       const res = await fetch(`${API_BASE}/cameras/discover`);
       const data = await res.json();
-      setResults(data);
+      setResults(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error("Error discovering cameras", e);
+      setResults([]);
     } finally {
       setDiscovering(false);
     }
@@ -91,7 +92,7 @@ export function AddCamerasScreen() {
             height: 40,
             borderRadius: 999,
             border: "none",
-            backgroundColor: "#22C55E",
+            backgroundColor: "#5CBD80",
             color: "#022C22",
             fontSize: 13,
             fontWeight: 600,
@@ -157,7 +158,7 @@ export function AddCamerasScreen() {
               height: 40,
               borderRadius: 999,
               border: "none",
-              backgroundColor: "#22C55E",
+              backgroundColor: "#5CBD80",
               color: "#022C22",
               fontSize: 12,
               fontWeight: 600,
@@ -177,24 +178,44 @@ type FieldProps = {
   children: React.ReactNode;
 };
 
+const inputFillStyle: React.CSSProperties = {
+  width: "100%",
+  flex: 1,
+  minWidth: 0,
+  background: "transparent",
+  border: "none",
+  outline: "none",
+  color: "#F9FAFB",
+  fontSize: 14,
+  padding: 0,
+};
+
 function Field({ label, children }: FieldProps) {
+  const child = React.Children.only(children);
+  const styledChild =
+    React.isValidElement(child) && child.type === "input" && child.props.type !== "checkbox"
+      ? React.cloneElement(child as React.ReactElement<{ style?: React.CSSProperties }>, {
+          style: { ...inputFillStyle, ...(child.props.style ?? {}) },
+        })
+      : children;
+
   return (
-    <label style={{ display: "block", fontSize: 11, color: "#9CA3AF" }}>
+    <label style={{ display: "block", fontSize: 12, color: "#9CA3AF" }}>
       {label}
       <div
         style={{
           marginTop: 4,
-          height: 40,
-          borderRadius: 10,
+          height: 44,
+          borderRadius: 999,
           border: "1px solid #1F2937",
-          padding: "0 10px",
+          padding: "0 14px",
           display: "flex",
           alignItems: "center",
           backgroundColor: "#020617",
-          color: "#F9FAFB"
+          color: "#F9FAFB",
         }}
       >
-        {children}
+        {styledChild}
       </div>
     </label>
   );

@@ -21,7 +21,7 @@ export function LoginScreen() {
           <input
             type="email"
             placeholder="tu@email.com"
-            value="eaguilar@camerakontrol.com"
+            defaultValue="eaguilar@camerakontrol.com"
             style={{
               height: 44,
               borderRadius: 999,
@@ -37,7 +37,7 @@ export function LoginScreen() {
           <input
             type="password"
             placeholder="••••••••"
-            value="e4guilar123**"
+            defaultValue="e4guilar123**"
             style={{
               height: 44,
               borderRadius: 999,
@@ -55,7 +55,7 @@ export function LoginScreen() {
             height: 48,
             borderRadius: 999,
             border: "none",
-            backgroundColor: "#22C55E",
+            backgroundColor: "#5CBD80",
             color: "#022C22",
             fontWeight: 600,
             cursor: "pointer"

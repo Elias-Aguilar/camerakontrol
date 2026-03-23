@@ -247,7 +247,7 @@
                   "name": "Login Button",
                   "width": "fill_container",
                   "height": 52,
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "cornerRadius": 999,
                   "layout": "vertical",
                   "justifyContent": "center",
@@ -279,7 +279,7 @@
                   "type": "text",
                   "id": "cmXj6",
                   "name": "Forgot Link",
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "content": "¿Olvidaste tu contraseña?",
                   "fontFamily": "Inter",
                   "fontSize": 13,
@@ -289,7 +289,7 @@
                   "type": "text",
                   "id": "vtrxn",
                   "name": "Create Account Link",
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "content": "Crear cuenta nueva",
                   "fontFamily": "Inter",
                   "fontSize": 13,
@@ -387,7 +387,7 @@
                   "name": "Add Camera Button",
                   "width": "fill_container",
                   "height": 40,
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "cornerRadius": 999,
                   "layout": "vertical",
                   "justifyContent": "center",
@@ -414,7 +414,7 @@
                   "cornerRadius": 999,
                   "stroke": {
                     "thickness": 1,
-                    "fill": "#22C55E"
+                    "fill": "#5CBD80"
                   },
                   "layout": "vertical",
                   "justifyContent": "center",
@@ -424,7 +424,7 @@
                       "type": "text",
                       "id": "U2TQI",
                       "name": "View Label",
-                      "fill": "#22C55E",
+                      "fill": "#5CBD80",
                       "content": "Ver seleccionadas",
                       "fontFamily": "Inter",
                       "fontSize": 13,
@@ -527,7 +527,7 @@
                           "name": "Checkbox",
                           "width": 22,
                           "height": 22,
-                          "fill": "#22C55E",
+                          "fill": "#5CBD80",
                           "cornerRadius": 6,
                           "layout": "vertical",
                           "justifyContent": "center",
@@ -634,7 +634,7 @@
                           "name": "Checkbox",
                           "width": 22,
                           "height": 22,
-                          "fill": "#22C55E",
+                          "fill": "#5CBD80",
                           "cornerRadius": 6,
                           "layout": "vertical",
                           "justifyContent": "center",
@@ -941,7 +941,7 @@
                   "cornerRadius": 999,
                   "stroke": {
                     "thickness": 1,
-                    "fill": "#22C55E"
+                    "fill": "#5CBD80"
                   },
                   "gap": 4,
                   "padding": [
@@ -954,7 +954,7 @@
                       "type": "text",
                       "id": "prPih",
                       "name": "Layout Text",
-                      "fill": "#22C55E",
+                      "fill": "#5CBD80",
                       "content": "2 x 2",
                       "fontFamily": "Inter",
                       "fontSize": 12,
@@ -978,7 +978,7 @@
                   "name": "Dot",
                   "width": 8,
                   "height": 8,
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "cornerRadius": 999,
                   "layout": "vertical"
                 },
@@ -1034,7 +1034,7 @@
                             "position": 0
                           },
                           {
-                            "color": "#22C55E",
+                            "color": "#5CBD80",
                             "position": 1
                           }
                         ]
@@ -1074,7 +1074,7 @@
                                   "type": "frame",
                                   "id": "1Efuw",
                                   "name": "Status",
-                                  "fill": "#22C55E",
+                                  "fill": "#5CBD80",
                                   "cornerRadius": 999,
                                   "layout": "vertical",
                                   "padding": [
@@ -1170,7 +1170,7 @@
                             "position": 0
                           },
                           {
-                            "color": "#22C55E",
+                            "color": "#5CBD80",
                             "position": 1
                           }
                         ]
@@ -1210,7 +1210,7 @@
                                   "type": "frame",
                                   "id": "GQbGh",
                                   "name": "Status",
-                                  "fill": "#22C55E",
+                                  "fill": "#5CBD80",
                                   "cornerRadius": 999,
                                   "layout": "vertical",
                                   "padding": [
@@ -1487,7 +1487,7 @@
                   "name": "Scan Tab",
                   "width": "fill_container",
                   "height": 34,
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "cornerRadius": 999,
                   "layout": "vertical",
                   "justifyContent": "center",
@@ -1560,7 +1560,7 @@
                   "name": "Scan Button",
                   "width": "fill_container",
                   "height": 40,
-                  "fill": "#22C55E",
+                  "fill": "#5CBD80",
                   "cornerRadius": 999,
                   "layout": "vertical",
                   "justifyContent": "center",
@@ -1675,7 +1675,7 @@
                               "type": "text",
                               "id": "5ckEQ",
                               "name": "Status",
-                              "fill": "#22C55E",
+                              "fill": "#5CBD80",
                               "content": "Conectable",
                               "fontFamily": "Inter",
                               "fontSize": 11,
@@ -1687,7 +1687,7 @@
                               "name": "Check",
                               "width": 20,
                               "height": 20,
-                              "fill": "#22C55E",
+                              "fill": "#5CBD80",
                               "cornerRadius": 6,
                               "layout": "vertical",
                               "justifyContent": "center",
@@ -1768,7 +1768,7 @@
                               "type": "text",
                               "id": "aj4i2",
                               "name": "Status",
-                              "fill": "#22C55E",
+                              "fill": "#5CBD80",
                               "content": "Conectable",
                               "fontFamily": "Inter",
                               "fontSize": 11,
@@ -1892,7 +1892,7 @@
                       "name": "Add Selected",
                       "width": "fill_container",
                       "height": 40,
-                      "fill": "#22C55E",
+                      "fill": "#5CBD80",
                       "cornerRadius": 999,
                       "layout": "vertical",
                       "justifyContent": "center",
@@ -2272,7 +2272,7 @@
                           "type": "text",
                           "id": "ommBi",
                           "name": "Hint",
-                          "fill": "#22C55E",
+                          "fill": "#5CBD80",
                           "content": "Cambiar",
                           "fontFamily": "Inter",
                           "fontSize": 11,
@@ -2298,7 +2298,7 @@
                       "cornerRadius": 999,
                       "stroke": {
                         "thickness": 1,
-                        "fill": "#22C55E"
+                        "fill": "#5CBD80"
                       },
                       "layout": "vertical",
                       "justifyContent": "center",
@@ -2308,7 +2308,7 @@
                           "type": "text",
                           "id": "GdOMo",
                           "name": "Label",
-                          "fill": "#22C55E",
+                          "fill": "#5CBD80",
                           "content": "Probar conexión",
                           "fontFamily": "Inter",
                           "fontSize": 12,
@@ -2322,7 +2322,7 @@
                       "name": "Save",
                       "width": "fill_container",
                       "height": 40,
-                      "fill": "#22C55E",
+                      "fill": "#5CBD80",
                       "cornerRadius": 999,
                       "layout": "vertical",
                       "justifyContent": "center",

@@ -84,7 +84,7 @@ export function CameraListScreen() {
             height: 40,
             borderRadius: 999,
             border: "none",
-            backgroundColor: "#22C55E",
+            backgroundColor: "#5CBD80",
             color: "#022C22",
             fontSize: 13,
             fontWeight: 600,
@@ -99,9 +99,9 @@ export function CameraListScreen() {
             flex: 1,
             height: 40,
             borderRadius: 999,
-            border: "1px solid #22C55E",
+            border: "1px solid #5CBD80",
             backgroundColor: "transparent",
-            color: "#22C55E",
+            color: "#5CBD80",
             fontSize: 13,
             fontWeight: 600,
             cursor: "pointer"
@@ -139,7 +139,7 @@ export function CameraListScreen() {
                     statusMap[cam.id] === "loading" || statusMap[cam.id] === undefined
                       ? "#9CA3AF"
                       : statusMap[cam.id]
-                        ? "#22C55E"
+                        ? "#5CBD80"
                         : "#EF4444",
                 }}
               >

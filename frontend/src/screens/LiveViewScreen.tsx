@@ -87,10 +87,10 @@ export function LiveViewScreen() {
         <div
           style={{
             borderRadius: 999,
-            border: "1px solid #22C55E",
+            border: "1px solid #5CBD80",
             padding: "4px 10px",
             fontSize: 12,
-            color: "#22C55E"
+            color: "#5CBD80"
           }}
         >
           2 x 2

@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4001";
@@ -178,7 +178,7 @@ export function EditCameraScreen() {
             height: 40,
             borderRadius: 999,
             border: "none",
-            backgroundColor: "#22C55E",
+            backgroundColor: "#5CBD80",
             color: "#022C22",
             fontSize: 12,
             fontWeight: 600,
@@ -197,24 +197,44 @@ type FieldProps = {
   children: React.ReactNode;
 };
 
+const inputFillStyle: React.CSSProperties = {
+  width: "100%",
+  flex: 1,
+  minWidth: 0,
+  background: "transparent",
+  border: "none",
+  outline: "none",
+  color: "#F9FAFB",
+  fontSize: 14,
+  padding: 0,
+};
+
 function Field({ label, children }: FieldProps) {
+  const child = React.Children.only(children);
+  const styledChild =
+    React.isValidElement(child) && child.type === "input" && child.props.type !== "checkbox"
+      ? React.cloneElement(child as React.ReactElement<{ style?: React.CSSProperties }>, {
+          style: { ...inputFillStyle, ...(child.props.style ?? {}) },
+        })
+      : children;
+
   return (
-    <label style={{ display: "block", fontSize: 11, color: "#9CA3AF" }}>
+    <label style={{ display: "block", fontSize: 12, color: "#9CA3AF" }}>
       {label}
       <div
         style={{
           marginTop: 4,
-          minHeight: 40,
-          borderRadius: 10,
+          minHeight: 44,
+          borderRadius: 999,
           border: "1px solid #1F2937",
-          padding: "0 10px",
+          padding: "0 14px",
           display: "flex",
           alignItems: "center",
           backgroundColor: "#020617",
           color: "#F9FAFB",
         }}
       >
-        {children}
+        {styledChild}
       </div>
     </label>
   );

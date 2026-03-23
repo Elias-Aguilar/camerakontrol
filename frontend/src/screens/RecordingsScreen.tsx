@@ -311,7 +311,7 @@ export function RecordingsScreen() {
                   download
                   style={{
                     fontSize: 12,
-                    color: "#22C55E",
+                    color: "#5CBD80",
                     textDecoration: "none",
                   }}
                 >
