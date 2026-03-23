@@ -1,0 +1,22 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import { LoginScreen } from "./screens/LoginScreen";
+import { CameraListScreen } from "./screens/CameraListScreen";
+import { RecordingsScreen } from "./screens/RecordingsScreen";
+import { AddCamerasScreen } from "./screens/AddCamerasScreen";
+import { EditCameraScreen } from "./screens/EditCameraScreen";
+
+export function App() {
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: "#020617", color: "#F9FAFB" }}>
+      <Routes>
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/cameras" element={<CameraListScreen />} />
+        <Route path="/recordings" element={<RecordingsScreen />} />
+        <Route path="/cameras/add" element={<AddCamerasScreen />} />
+        <Route path="/cameras/:id/edit" element={<EditCameraScreen />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </div>
+  );
+}
+
