@@ -1,0 +1,9 @@
+/* Ajustes mínimos: modales/toasts coherentes con la app oscura */
+.modal-content {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.toast .btn-close {
+  filter: invert(1);
+}

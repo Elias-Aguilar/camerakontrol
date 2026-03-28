@@ -19,10 +19,9 @@ model Camera {
   isOnline             Boolean    @default(false)
   isSelected           Boolean    @default(false)
   lastSeenAt           DateTime?
-  recordingEnabled        Boolean   @default(false)
-  recordingStartTime      String?   // "HH:mm" ej. "08:00"
-  recordingEndTime        String?   // "HH:mm" ej. "18:00"
-  recordingFragmentMinutes Int?     // duración de cada fragmento en mins; null = 1 min
+  recordingEnabled         Boolean   @default(false)
+  recordingWindows         Json?     // [{ "start": "09:00", "end": "10:00" }, ...] máx. 3
+  recordingFragmentMinutes Int?      // duración de cada fragmento en mins; null = 1 min
   retentionDays         Int?       // días a conservar grabaciones; null = sin límite
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt

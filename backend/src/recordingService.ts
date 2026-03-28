@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { spawn } from "child_process";
 import * as path from "path";
 import * as fs from "fs";
+import { getActiveWindow, parseRecordingWindowsJson } from "./recordingSchedule";
 
 const prisma = new PrismaClient();
 
@@ -32,24 +33,6 @@ function buildRtspUrl(camera: { ip: string; port: number; username: string | nul
       ? `${encodeURIComponent(camera.username)}:${encodeURIComponent(camera.password)}@`
       : "";
   return `rtsp://${userPart}${camera.ip}:${basePort}/`;
-}
-
-/** Parsea "HH:mm" a minutos desde medianoche */
-function timeToMinutes(s: string | null | undefined): number | null {
-  if (!s || typeof s !== "string") return null;
-  const m = s.match(/^(\d{1,2}):(\d{2})$/);
-  if (!m) return null;
-  const h = parseInt(m[1], 10);
-  const min = parseInt(m[2], 10);
-  if (h < 0 || h > 23 || min < 0 || min > 59) return null;
-  return h * 60 + min;
-}
-
-/** ¿Está la hora actual dentro de [start, end]? (minutos desde medianoche) */
-function isWithinTimeWindow(nowMinutes: number, start: number, end: number): boolean {
-  if (start <= end) return nowMinutes >= start && nowMinutes < end;
-  // Cruza medianoche: ej. 22:00 - 06:00
-  return nowMinutes >= start || nowMinutes < end;
 }
 
 function resolveRecordingPath(r: { filePath: string; cameraId: number; fileName: string; startedAt: Date }): string | null {
@@ -120,14 +103,16 @@ async function startRecording(camera: { id: number; name: string; ip: string; po
 
   const cameraData = await prisma.camera.findUnique({
     where: { id: camera.id },
-    select: { recordingEndTime: true, recordingStartTime: true, recordingFragmentMinutes: true },
+    select: { recordingWindows: true, recordingFragmentMinutes: true },
   });
-  if (!cameraData?.recordingEndTime) return;
-
-  const endMinutes = timeToMinutes(cameraData.recordingEndTime) ?? 24 * 60;
+  const windows = parseRecordingWindowsJson(cameraData?.recordingWindows);
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  const active = getActiveWindow(nowMinutes, windows);
+  if (!active) return;
+
+  const endMinutes = active.end;
   const totalUntilEnd = secondsUntilEnd(nowMinutes, endMinutes, now);
-  const fragmentMins = cameraData.recordingFragmentMinutes ?? 1;
+  const fragmentMins = cameraData?.recordingFragmentMinutes ?? 1;
   const fragmentSecs = Math.max(1, fragmentMins) * 60;
   const durationSecs = Math.min(totalUntilEnd, fragmentSecs);
 
@@ -242,22 +227,24 @@ async function tick(): Promise<void> {
   await runCleanup();
 
   const cameras = await prisma.camera.findMany({
-    where: {
-      recordingEnabled: true,
-      isOnline: true,
-      recordingStartTime: { not: null },
-      recordingEndTime: { not: null },
-    },
+    where: { recordingEnabled: true, isOnline: true },
   });
 
   const now = new Date();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
 
   for (const cam of cameras) {
-    const start = timeToMinutes(cam.recordingStartTime!) ?? 0;
-    const end = timeToMinutes(cam.recordingEndTime!) ?? 24 * 60;
+    const windows = parseRecordingWindowsJson(cam.recordingWindows);
+    if (windows.length === 0) {
+      if (activeRecordings.has(cam.id)) {
+        const { process: proc } = activeRecordings.get(cam.id)!;
+        proc.kill("SIGTERM");
+        activeRecordings.delete(cam.id);
+      }
+      continue;
+    }
 
-    if (!isWithinTimeWindow(nowMinutes, start, end)) {
+    if (!getActiveWindow(nowMinutes, windows)) {
       if (activeRecordings.has(cam.id)) {
         const { process: proc } = activeRecordings.get(cam.id)!;
         proc.kill("SIGTERM");

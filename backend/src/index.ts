@@ -11,6 +11,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as net from "net";
 import { startRecordingService } from "./recordingService";
+import { normalizeRecordingWindowsInput } from "./recordingSchedule";
 
 function checkCameraReachable(ip: string, port: number, timeoutMs = 3000): Promise<boolean> {
   return new Promise((resolve) => {
@@ -78,7 +79,7 @@ app.get("/cameras/discover", async (_req, res) => {
 
 app.post("/cameras", async (req, res) => {
   try {
-    const { name, ip, port, username, password, protocol, recordingEnabled, recordingStartTime, recordingEndTime, recordingFragmentMinutes, retentionDays } = req.body;
+    const { name, ip, port, username, password, protocol, recordingEnabled, recordingWindows, recordingFragmentMinutes, retentionDays } = req.body;
 
     // Construimos la RTSP URL a partir de los datos
     const basePort = 554; // puerto RTSP t?pico
@@ -102,8 +103,9 @@ app.post("/cameras", async (req, res) => {
         rtspUrl: rtspUrl ?? undefined,
         isOnline: true,
         ...(recordingEnabled !== undefined && { recordingEnabled: Boolean(recordingEnabled) }),
-        ...(recordingStartTime !== undefined && { recordingStartTime: recordingStartTime || null }),
-        ...(recordingEndTime !== undefined && { recordingEndTime: recordingEndTime || null }),
+        ...(recordingWindows !== undefined && {
+          recordingWindows: normalizeRecordingWindowsInput(recordingWindows) ?? [],
+        }),
         ...(recordingFragmentMinutes !== undefined && {
           recordingFragmentMinutes:
             recordingFragmentMinutes == null || recordingFragmentMinutes === ""
@@ -161,7 +163,7 @@ app.put("/cameras/:id", async (req, res) => {
     return res.status(400).json({ error: "ID inv?lido" });
   }
   try {
-    const { name, ip, port, username, password, protocol, recordingEnabled, recordingStartTime, recordingEndTime, recordingFragmentMinutes, retentionDays } = req.body;
+    const { name, ip, port, username, password, protocol, recordingEnabled, recordingWindows, recordingFragmentMinutes, retentionDays } = req.body;
 
     const basePort = 554;
     const userPart =
@@ -184,8 +186,9 @@ app.put("/cameras/:id", async (req, res) => {
         protocol: protocol || "rtsp",
         rtspUrl: rtspUrl ?? undefined,
         ...(recordingEnabled !== undefined && { recordingEnabled: Boolean(recordingEnabled) }),
-        ...(recordingStartTime !== undefined && { recordingStartTime: recordingStartTime || null }),
-        ...(recordingEndTime !== undefined && { recordingEndTime: recordingEndTime || null }),
+        ...(recordingWindows !== undefined && {
+          recordingWindows: normalizeRecordingWindowsInput(recordingWindows) ?? [],
+        }),
         ...(recordingFragmentMinutes !== undefined && {
           recordingFragmentMinutes:
             recordingFragmentMinutes == null || recordingFragmentMinutes === ""

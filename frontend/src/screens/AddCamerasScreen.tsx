@@ -1,5 +1,6 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "../ui/NotificationsProvider";
 
 type Discovered = {
   id: number;
@@ -13,6 +14,7 @@ export function AddCamerasScreen() {
   const [discovering, setDiscovering] = useState(false);
   const [results, setResults] = useState<Discovered[]>([]);
   const navigate = useNavigate();
+  const { showToast } = useNotifications();
 
   const handleDiscover = async () => {
     setDiscovering(true);
@@ -48,16 +50,17 @@ export function AddCamerasScreen() {
       protocol: (formData.get("protocol") as string) || "rtsp",
     };
     try {
-      await fetch(`${API_BASE}/cameras`, {
+      const res = await fetch(`${API_BASE}/cameras`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
+      if (!res.ok) throw new Error("No se pudo crear la cámara");
       form.reset();
-      alert("Cámara guardada");
+      showToast("Cámara guardada correctamente.", "success");
     } catch (e) {
       console.error("Error saving camera", e);
-      alert("Error al guardar la cámara");
+      showToast("Error al guardar la cámara.", "danger");
     }
   };
 

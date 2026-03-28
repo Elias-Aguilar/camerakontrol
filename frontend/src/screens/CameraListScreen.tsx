@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "../ui/NotificationsProvider";
 
 type Camera = {
   id: number;
@@ -15,6 +16,7 @@ export function CameraListScreen() {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [statusMap, setStatusMap] = useState<Record<number, boolean | "loading">>({});
   const navigate = useNavigate();
+  const { showToast, confirm } = useNotifications();
 
   useEffect(() => {
     loadCameras();
@@ -57,13 +59,22 @@ export function CameraListScreen() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("¿Eliminar esta cámara definitivamente?")) return;
+    const ok = await confirm({
+      title: "Eliminar cámara",
+      body: "¿Eliminar esta cámara definitivamente? Esta acción no se puede deshacer.",
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      confirmVariant: "danger",
+    });
+    if (!ok) return;
     try {
-      await fetch(`${API_BASE}/cameras/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE}/cameras/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Error del servidor");
       setCameras((prev) => prev.filter((c) => c.id !== id));
+      showToast("Cámara eliminada.", "success");
     } catch (e) {
       console.error("Error deleting camera", e);
-      alert("No se pudo eliminar la cámara");
+      showToast("No se pudo eliminar la cámara.", "danger");
     }
   };
 

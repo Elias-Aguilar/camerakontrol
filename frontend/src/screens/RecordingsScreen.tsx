@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "../ui/NotificationsProvider";
 
 type Recording = {
   id: number;
@@ -35,11 +36,35 @@ function formatDateTime(iso: string): string {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
+}
+
+function RecordingVideo({ src }: { src: string }) {
+  const applyPlaybackRate = useCallback((el: HTMLVideoElement | null) => {
+    if (!el) return;
+    el.defaultPlaybackRate = 2;
+    el.playbackRate = 2;
+  }, []);
+
+  return (
+    <video
+      ref={applyPlaybackRate}
+      controls
+      style={{ width: "100%", maxHeight: 240, backgroundColor: "#000" }}
+      src={src}
+      preload="metadata"
+      onLoadedMetadata={(e) => {
+        e.currentTarget.defaultPlaybackRate = 2;
+        e.currentTarget.playbackRate = 2;
+      }}
+    />
+  );
 }
 
 export function RecordingsScreen() {
   const navigate = useNavigate();
+  const { showToast, confirm } = useNotifications();
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -86,7 +111,14 @@ export function RecordingsScreen() {
       selectedIds.size === 1
         ? "¿Eliminar esta grabación? Se borrará el archivo y el registro."
         : `¿Eliminar ${selectedIds.size} grabaciones? Se borrarán los archivos y los registros.`;
-    if (!confirm(msg)) return;
+    const ok = await confirm({
+      title: "Eliminar grabaciones",
+      body: msg,
+      confirmText: "Eliminar",
+      cancelText: "Cancelar",
+      confirmVariant: "danger",
+    });
+    if (!ok) return;
     setDeleting(true);
     try {
       const res = await fetch(`${API_BASE}/recordings`, {
@@ -100,9 +132,15 @@ export function RecordingsScreen() {
       }
       setSelectedIds(new Set());
       loadRecordings();
+      showToast("Grabaciones eliminadas.", "success");
     } catch (e) {
       console.error(e);
-      alert(typeof e === "object" && e && "message" in e ? (e as Error).message : "No se pudieron borrar las grabaciones");
+      showToast(
+        typeof e === "object" && e && "message" in e
+          ? (e as Error).message
+          : "No se pudieron borrar las grabaciones",
+        "danger"
+      );
     } finally {
       setDeleting(false);
     }
@@ -150,7 +188,8 @@ export function RecordingsScreen() {
         <div>
           <h2 style={{ fontSize: 22, marginBottom: 4 }}>Grabaciones</h2>
           <p style={{ fontSize: 13, color: "#9CA3AF" }}>
-            Busca y reproduce videos grabados por cámara y fecha
+            Busca y reproduce videos grabados por cámara y fecha. Reproducción por defecto a 2× (puedes
+            cambiarla en los controles del reproductor).
           </p>
         </div>
         {recordings.length > 0 && (
@@ -286,12 +325,7 @@ export function RecordingsScreen() {
                 />
               </label>
               <div style={{ flex: 1, minWidth: 0 }}>
-              <video
-                controls
-                style={{ width: "100%", maxHeight: 240, backgroundColor: "#000" }}
-                src={`${API_BASE}/recordings/${r.id}/stream`}
-                preload="metadata"
-              />
+              <RecordingVideo src={`${API_BASE}/recordings/${r.id}/stream`} />
               <div style={{ padding: 12 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
                   {r.camera.name}
