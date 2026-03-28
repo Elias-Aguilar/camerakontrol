@@ -41,8 +41,9 @@ export function Time24Select({ value, onChange, showCaption = true, embedded = f
     : selectStyle;
 
   const row = (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
+    <div className="time-24-select" style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
       <select
+        className="time-24-select-native"
         aria-label="Hora (0–23)"
         value={h}
         onChange={(e) => onChange(`${e.target.value}:${min}`)}
@@ -56,6 +57,7 @@ export function Time24Select({ value, onChange, showCaption = true, embedded = f
       </select>
       <span style={{ color: "#94A3B8", fontWeight: 600, userSelect: "none" }}>:</span>
       <select
+        className="time-24-select-native"
         aria-label="Minutos (0–59)"
         value={min}
         onChange={(e) => onChange(`${h}:${e.target.value}`)}

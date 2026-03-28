@@ -24,6 +24,8 @@ const RECORDING_PRESET = process.env.RECORDING_PRESET || "fast";
 const RECORDING_SCALE = process.env.RECORDING_SCALE ? Number(process.env.RECORDING_SCALE) : 720;
 // fps (0 = mantener del source)
 const RECORDING_FPS = process.env.RECORDING_FPS ? Number(process.env.RECORDING_FPS) : 15;
+// Si "1", solo graba cámaras con isOnline=true en BD (p. ej. tras GET /cameras/:id/status). Por defecto no: isOnline suele quedar false en Docker aunque el RTSP funcione.
+const RECORDING_REQUIRE_ONLINE = process.env.RECORDING_REQUIRE_ONLINE === "1";
 
 function buildRtspUrl(camera: { ip: string; port: number; username: string | null; password: string | null; protocol: string; rtspUrl: string | null }): string | null {
   if (camera.protocol !== "rtsp" || !camera.ip) return camera.rtspUrl;
@@ -227,11 +229,19 @@ async function tick(): Promise<void> {
   await runCleanup();
 
   const cameras = await prisma.camera.findMany({
-    where: { recordingEnabled: true, isOnline: true },
+    where: RECORDING_REQUIRE_ONLINE
+      ? { recordingEnabled: true, isOnline: true }
+      : { recordingEnabled: true },
   });
 
   const now = new Date();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+  if (process.env.RECORDING_DEBUG === "1") {
+    console.log(
+      `[Recording] tick ${now.toISOString()} local=${now.toString()} → ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")} | cámaras con grabación activa: ${cameras.length}`
+    );
+  }
 
   for (const cam of cameras) {
     const windows = parseRecordingWindowsJson(cam.recordingWindows);

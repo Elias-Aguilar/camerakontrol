@@ -1,4 +1,7 @@
-version: "3.9"
+# Uso típico: docker compose up --build
+# Si entras desde otra máquina en la LAN, crea un .env en la raíz del repo con:
+#   VITE_API_BASE=http://TU_IP_LAN:4000
+# (el navegador necesita alcanzar el API en esa URL; localhost solo sirve en el mismo PC).
 
 services:
   db:
@@ -13,26 +16,39 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U camerakontrol -d camerakontrol"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   backend:
     build: ./backend
     container_name: camerakontrol-backend
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgresql://camerakontrol:camerakontrol@db:5432/camerakontrol
-      - PORT=4000
-      - RECORDINGS_PATH=/app/recordings
+      DATABASE_URL: postgresql://camerakontrol:camerakontrol@db:5432/camerakontrol
+      PORT: "4000"
+      RECORDINGS_PATH: /app/recordings
+      # Horarios de grabación usan la hora local del contenedor. Ej.: TZ=America/Santiago en .env raíz.
+      TZ: ${TZ:-UTC}
+      RECORDING_DEBUG: ${RECORDING_DEBUG:-0}
+      RECORDING_REQUIRE_ONLINE: ${RECORDING_REQUIRE_ONLINE:-0}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "4000:4000"
     volumes:
-      - recordings_data:/app/recordings
-
+      - C:/camerakontrol_recordings:/app/recordings
   frontend:
     build: ./frontend
     container_name: camerakontrol-frontend
     restart: unless-stopped
+    environment:
+      # URL del API tal como la ve el navegador (no uses el nombre del servicio Docker aquí).
+      VITE_API_BASE: ${VITE_API_BASE:-http://localhost:4000}
     depends_on:
       - backend
     ports:
@@ -40,5 +56,3 @@ services:
 
 volumes:
   db_data:
-  recordings_data:
-
