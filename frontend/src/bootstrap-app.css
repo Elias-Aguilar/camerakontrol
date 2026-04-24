@@ -7,3 +7,16 @@
 .toast .btn-close {
   filter: invert(1);
 }
+
+/*
+ * Select de hora 24 h: en Windows/Chrome el desplegable nativo suele ser blanco
+ * pero hereda color claro del <select> → texto invisible. Forzamos contraste en <option>.
+ */
+.time-24-select select.time-24-select-native {
+  color-scheme: dark;
+}
+
+.time-24-select select.time-24-select-native option {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}

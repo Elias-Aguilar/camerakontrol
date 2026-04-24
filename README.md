@@ -1,190 +1,177 @@
 ## CameraKontrol
 
-Backend (Node/Express + Prisma + Postgres) y frontend (React + Vite) orquestados con Docker Desktop para gestionar y visualizar cámaras IP.
+Aplicación web para **gestionar cámaras IP (RTSP)**, **programar grabaciones** por ventanas horarias (hasta 3 por cámara) y **consultar o eliminar** los vídeos grabados (MP4).
+
+- **Backend:** Node.js, Express, Prisma, PostgreSQL. Grabación con **FFmpeg** desde RTSP.
+- **Frontend:** React, Vite, React Router, Bootstrap (toasts y modales de confirmación).
+
+---
 
 ### Requisitos
 
-- Docker Desktop
-- (Opcional) Node 20+ y npm si quieres ejecutar localmente sin Docker
+- **Docker Desktop** (opción recomendada para levantar todo el stack), o bien:
+- **Node.js 20+**, **npm**, **PostgreSQL 16+**, **FFmpeg** en el PATH (si ejecutas backend y frontend en tu máquina).
 
-### Levantar todo con Docker
+---
 
-En la raíz del proyecto:
+### Ejecutar con Docker
+
+En la raíz del repositorio:
 
 ```bash
-docker compose build
-docker compose up
+docker compose up --build
 ```
 
-Servicios:
+Servicios expuestos en el host:
 
-- Base de datos Postgres: `localhost:5433`
-- Backend API: `http://localhost:4001`
-- Frontend React: `http://localhost:5173`
+| Servicio   | URL / host                    |
+|-----------|-------------------------------|
+| Frontend  | http://localhost:5173         |
+| API       | http://localhost:4000         |
+| Postgres  | `localhost:5433` (usuario/contraseña/BD: `camerakontrol`) |
 
-### Levantar solo DB con Docker
+El backend aplica migraciones Prisma al arrancar (`prisma migrate deploy`) y guarda las grabaciones en el volumen Docker `recordings_data` (montado en `/app/recordings` dentro del contenedor).
 
-En la raíz del proyecto:
+**Grabación programada en Docker**
+
+- **Zona horaria:** el contenedor usa por defecto **UTC**. Los horarios de las ventanas se comparan con la hora del contenedor. Para alinearlos con tu país, define `TZ` en un `.env` en la raíz del repo (Compose lo inyecta), por ejemplo: `TZ=America/Santiago`.
+- **Estado “online”:** el servicio de grabación **no exige** que la cámara esté marcada `isOnline` en base de datos (ese flag depende de un chequeo TCP que a menudo falla desde Docker aunque el RTSP sea válido). Si quieres el comportamiento antiguo: `RECORDING_REQUIRE_ONLINE=1` en el entorno del backend.
+- **Depuración:** `RECORDING_DEBUG=1` escribe en logs cada ciclo (~30 s) la hora usada y cuántas cámaras tienen grabación activada.
+
+**Solo la base de datos en Docker** (por ejemplo, para desarrollar API y UI en local):
 
 ```bash
 docker compose up -d db
 ```
-Servicios:
 
-- Base de datos Postgres: `localhost:5433`
+**Acceso desde otra máquina en la LAN:** el navegador debe poder llegar al API. Crea un archivo `.env` en la **raíz del repo** (junto a `docker-compose.yml`) con:
 
-### Backend
+```env
+VITE_API_BASE=http://TU_IP_EN_LA_RED:4000
+```
 
-- Ruta de salud: `GET /health`
-- Lista de cámaras: `GET /cameras`
-- Crear cámara manualmente: `POST /cameras`
-- Descubrir cámaras ONVIF en la red (simulado por ahora): `GET /cameras/discover`
-- Grabaciones: `GET /recordings?cameraId=&date=&startTime=&endTime=`
-- Reproducir grabación: `GET /recordings/:id/stream`
-- Descargar grabación: `GET /recordings/:id/download`
+Vuelve a construir o reinicia el servicio `frontend` para que Vite tome la variable.
 
-Esquema Prisma en `backend/prisma/schema.prisma`. Para trabajar **fuera de Docker**:
+---
+
+### Ejecutar en local (sin contenedores de app)
+
+#### 1. Base de datos
+
+Levanta Postgres (puede ser el contenedor solo-DB anterior) y anota host y puerto. Ejemplo con el compose del proyecto:
+
+```bash
+docker compose up -d db
+```
+
+#### 2. Backend
 
 ```bash
 cd backend
 npm install
-# crea un archivo .env en backend con:
-# PORT=4001
-# DATABASE_URL="postgresql://<usuario>:<password>@localhost:5433/camerakontrol"
-# RECORDINGS_PATH=./recordings   (opcional)
-# RECORDING_CRF=28               (calidad H.264, mayor = archivos más pequeños)
-# RECORDING_PRESET=fast          (ultrafast|fast|medium)
-# RECORDING_SCALE=720            (altura en px, 0=sin escalar)
-# RECORDING_FPS=15               (0=source)
-#
-# por ejemplo, si usas el Postgres de Docker:
-# PORT=4001
-# DATABASE_URL="postgresql://camerakontrol:camerakontrol@localhost:5433/camerakontrol"
-npx prisma migrate dev
+```
+
+Crea `backend/.env`, por ejemplo:
+
+```env
+PORT=4000
+DATABASE_URL="postgresql://camerakontrol:camerakontrol@localhost:5433/camerakontrol"
+# Opcional:
+# RECORDINGS_PATH=./recordings
+# FFMPEG_PATH=ffmpeg
+# RECORDING_CRF=28
+# RECORDING_PRESET=fast
+# RECORDING_SCALE=720
+# RECORDING_FPS=15
+# RECORDING_USE_COPY=1
+```
+
+Si cambias `PORT`, usa el mismo puerto en `VITE_API_BASE` del frontend (p. ej. `http://localhost:4001`).
+
+Aplica el esquema y arranca:
+
+```bash
+npx prisma migrate deploy
 npm run dev
 ```
 
-### Frontend
+Comprueba `GET http://localhost:<PORT>/health`.
 
-App React con Vite en `frontend` con estas pantallas:
-
-- Login
-- Lista de cámaras
-- Grabaciones (buscador por fecha/cámara, reproductor de video)
-- Agregar cámaras (búsqueda en red + formulario manual)
-- Editar cámara (incluye configuración de horario de grabación)
-
-Para ejecutar **fuera de Docker**:
+#### 3. Frontend
 
 ```bash
 cd frontend
 npm install
-# crea un archivo .env en frontend con:
-# VITE_API_BASE="http://localhost:4001"
+```
+
+Crea `frontend/.env` apuntando al mismo puerto que uses en el backend:
+
+```env
+VITE_API_BASE="http://localhost:4000"
+```
+
+```bash
 npm run dev
 ```
 
-### Dependencias y librerías de terceros
+Abre la URL que indique Vite (por defecto http://localhost:5173).
 
-#### Backend
+**FFmpeg** debe estar instalado y accesible en el sistema donde corre el backend; sin él no habrá grabación.
 
-- **Node.js / Express**  
-  - Framework HTTP para exponer la API REST (`/health`, `/cameras`, etc.).
+---
 
-- **Prisma** (`@prisma/client`, `prisma`)  
-  - ORM para modelar y acceder a la base de datos Postgres.  
-  - Esquema en `backend/prisma/schema.prisma` (modelo `Camera` con IP, puerto, credenciales, RTSP, estado, etc.).
+### Funcionalidad actual (UI)
 
-- **PostgreSQL**  
-  - Motor de base de datos relacional donde se almacenan cámaras y su configuración.  
-  - En Docker se levanta como servicio `db`.
+- **Login** (flujo simulado; redirección a la lista de cámaras).
+- **Lista de cámaras:** estado de conexión (comprobación TCP al puerto RTSP), editar, eliminar.
+- **Agregar cámara:** descubrimiento ONVIF en red y alta manual (IP, puerto, credenciales, RTSP).
+- **Editar cámara:** datos de conexión y **grabación programada**: hasta **tres franjas horarias** en formato 24 h, duración de fragmento por archivo, retención en días.
+- **Grabaciones:** filtro por fecha y cámara, reproducción en el navegador, descarga y borrado (individual o múltiple).
 
-- **CORS** (`cors`)  
-  - Middleware para permitir que el frontend (en otro puerto) consuma la API del backend sin problemas de cross‑origin.
+No hay pantalla de **vista en vivo** en la aplicación web actual.
 
-- **dotenv**  
-  - Carga variables de entorno desde `.env` (por ejemplo `PORT`, `DATABASE_URL`, `FFMPEG_PATH`).
+---
 
-- **onvif**  
-  - Librería Node para realizar *discovery* ONVIF en la red local (`/cameras/discover`).
+### API REST (resumen)
 
-- **FFmpeg** (binario externo, más `fluent-ffmpeg` si se usa)  
-  - Herramienta de línea de comandos instalada en el sistema.  
-  - Se usa para conectarse al flujo RTSP de la cámara y generar imágenes (snapshots) que el navegador sí puede mostrar.
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/health` | Estado del servicio |
+| GET | `/cameras` | Lista de cámaras |
+| GET | `/cameras/discover` | Descubrimiento ONVIF |
+| POST | `/cameras` | Crear cámara |
+| GET | `/cameras/:id` | Detalle |
+| GET | `/cameras/:id/status` | Comprobar si el host/puerto responde |
+| PUT | `/cameras/:id` | Actualizar (incl. `recordingWindows`, retención, etc.) |
+| DELETE | `/cameras/:id` | Eliminar cámara |
+| GET | `/recordings` | Lista (`?date=YYYY-MM-DD`, `?cameraId=`, opcional `startTime` / `endTime` HH:mm) |
+| GET | `/recordings/:id/stream` | Reproducir MP4 (soporta Range) |
+| GET | `/recordings/:id/download` | Descargar archivo |
+| DELETE | `/recordings` | Cuerpo JSON `{ "ids": [1,2,...] }` |
 
-#### Frontend
+Existen también rutas técnicas sobre flujo RTSP (`/cameras/:id/snapshot`, `/cameras/:id/stream`) pensadas para uso puntual o integraciones; **no forman parte del flujo principal de la UI descrita arriba**.
 
-- **React**  
-  - Librería principal para construir la UI de la aplicación (pantallas de login, lista, vista en vivo, agregar cámaras).
+---
 
-- **React Router DOM**  
-  - Manejo de rutas en el lado del cliente (`/login`, `/cameras`, `/live`, `/cameras/add`).
+### Grabación programada
 
-- **Vite**  
-  - Herramienta de *bundling* y dev server para el proyecto React; ofrece recarga rápida durante el desarrollo.
+- Se evalúa cada ~30 s qué cámaras tienen grabación activada, están marcadas como online y cuya hora actual cae en **alguna** de sus ventanas (`recordingWindows`, máximo 3).
+- Los archivos se generan con FFmpeg (por defecto re-codificación H.264; con `RECORDING_USE_COPY=1` se puede usar copia directa si la cámara es compatible).
+- Rutas de archivo típicas: `recordings/<cameraId>/<YYYY-MM-DD>/` o la ruta definida en `RECORDINGS_PATH`.
+- Limpieza por **retención** según días configurados por cámara.
 
-#### Infraestructura / Herramientas
+Esquema y migraciones: `backend/prisma/schema.prisma`.
 
-- **Docker / Docker Compose**  
-  - Orquestación de servicios:
-    - `db` (Postgres)
-    - `backend` (API Node/Express)
-    - `frontend` (React/Vite)
-  - Permite levantar todo el stack con `docker compose up`.
+---
 
-- **Nodemon + ts-node + TypeScript**  
-  - `TypeScript`: tipado estático en el backend.  
-  - `ts-node`: ejecuta directamente archivos `.ts` sin compilar manualmente.  
-  - `nodemon`: recarga el backend automáticamente al cambiar código fuente.
+### Stack principal
 
-### Grabación de video
+**Backend:** Express, Prisma, PostgreSQL, `onvif`, `dotenv`, `cors`, `fluent-ffmpeg` (donde aplique).  
+**Frontend:** React 18, React Router, Vite, Bootstrap / react-bootstrap.
 
-La app graba el flujo RTSP de cada cámara en archivos MP4 reproducibles, según un horario configurado por cámara.
+---
 
-- **Configuración por cámara** (en Editar cámara):
-  - Activar grabación
-  - Hora inicio (ej. 08:00)
-  - Hora fin (ej. 18:00)
-- **Servicio de grabación**: corre en segundo plano, revisa cada 30 s si alguna cámara debe grabar. Si la hora actual está dentro de [inicio, fin], inicia FFmpeg para capturar RTSP a MP4.
+### Docker: notas
 
-- **Almacenamiento**: `recordings/{cameraId}/{YYYY-MM-DD}/` (o `RECORDINGS_PATH` en `.env`).
-
-- **Pantalla Grabaciones**: filtros por fecha y cámara, reproductor HTML5 y descarga.
-
-- **FFmpeg**: debe estar instalado. Usa `-c copy` para menor uso de CPU. El backend aún ofrece:
-  - `GET /cameras/:id/snapshot`  
-    - Ejecuta FFmpeg contra el RTSP de la cámara.  
-    - Genera un solo frame JPEG reescalado (≈480 px de ancho, calidad reducida) y lo devuelve como `image/jpeg`.
-  - `GET /cameras/:id/stream`  
-    - Convierte RTSP → MJPEG continuo (no se usa actualmente en la UI, pero está disponible).
-
-En el **frontend**, la pantalla de “Vista en vivo”:
-
-- Llama inicialmente a `GET /cameras` y decide qué cámaras mostrar:
-  - Si hay cámaras seleccionadas (`isSelected = true`) muestra hasta 4 de ellas.
-  - Si no hay seleccionadas, muestra hasta 4 cámaras marcadas como `isOnline = true`.
-- Para cada cámara:
-  - Pide `GET /cameras/:id/snapshot?ts=<tick>` cada cierto intervalo (pseudo‑vídeo basado en snapshots).
-  - Muestra el último snapshot disponible en un `<img>` ocupando su celda.
-- El layout de la cuadrícula se adapta según cuántas cámaras se estén mostrando:
-  - 1 cámara → ocupa todo el espacio.
-  - 2 cámaras → una encima de la otra.
-  - 3–4 cámaras → grilla 2×2.
-
-#### Limitaciones conocidas
-
-- Los navegadores no soportan RTSP de forma nativa, por eso se usa FFmpeg para convertir RTSP a imágenes JPEG.
-- El enfoque actual usa "pseudo‑vídeo" basado en snapshots:
-  - Menos fluido que un streaming nativo (HLS/WebRTC).
-  - Puede generar muchas peticiones HTTP (`/snapshot?ts=N`) y carga en CPU/red si se baja mucho el intervalo.
-- FFmpeg se ejecuta en la misma máquina que el backend, por lo que:
-  - Es sensible a configuración de firewall/antivirus.
-  - No es la solución más escalable para muchas cámaras en paralelo.
-
-#### Ideas para futuros pasos
-
-- Introducir un **media server** dedicado (por ejemplo `rtsp-simple-server` / `mediamtx`) que:
-  - Reciba las entradas RTSP de las cámaras.
-  - Exponga salidas HLS o WebRTC que el navegador pueda reproducir de forma nativa.
-- Explorar un **player WebRTC/HLS** en el frontend en lugar de snapshots.
-- Para una app móvil nativa, evaluar cliente RTSP directo (sin pasar por navegador) reutilizando la configuración de cámaras y la base de datos actual.
+- El descubrimiento ONVIF desde el contenedor puede comportarse distinto que en el host por la red bridge de Docker; en algunos entornos conviene probar descubrimiento desde la máquina host o ajustar red/puertos.
+- Las cámaras deben ser alcanzables **desde el host o contenedor donde corre el backend**, según tu despliegue.

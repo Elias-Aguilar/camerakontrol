@@ -1,4 +1,8 @@
-FROM node:20
+FROM node:20-bookworm-slim
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -17,5 +21,6 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["npm", "run", "start"]
+# Aplica migraciones en cada arranque y luego inicia el API (grabaciones usan ffmpeg)
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
 
