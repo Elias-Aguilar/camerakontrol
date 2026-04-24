@@ -41,7 +41,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - C:/camerakontrol_recordings:/app/recordings
+      - C:\_Developments\camerakontrol\recordings:/app/recordings
   frontend:
     build: ./frontend
     container_name: camerakontrol-frontend
