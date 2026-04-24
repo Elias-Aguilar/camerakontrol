@@ -40,7 +40,7 @@ function formatDateTime(iso: string): string {
   });
 }
 
-function RecordingVideo({ src }: { src: string }) {
+function RecordingVideo({ src, maxHeight }: { src: string; maxHeight: number }) {
   const applyPlaybackRate = useCallback((el: HTMLVideoElement | null) => {
     if (!el) return;
     el.defaultPlaybackRate = 2;
@@ -51,7 +51,7 @@ function RecordingVideo({ src }: { src: string }) {
     <video
       ref={applyPlaybackRate}
       controls
-      style={{ width: "100%", maxHeight: 240, backgroundColor: "#000" }}
+      style={{ width: "100%", maxHeight, backgroundColor: "#000" }}
       src={src}
       preload="metadata"
       onLoadedMetadata={(e) => {
@@ -75,6 +75,7 @@ export function RecordingsScreen() {
   const [cameraFilter, setCameraFilter] = useState<number | "">("");
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
 
   const loadRecordings = () => {
     setLoading(true);
@@ -158,8 +159,20 @@ export function RecordingsScreen() {
     loadRecordings();
   }, [dateFilter, cameraFilter]);
 
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: "2rem 1.5rem" }}>
+    <div
+      style={{
+        maxWidth: isDesktop ? 1280 : 480,
+        margin: "0 auto",
+        padding: "2rem 1.5rem",
+      }}
+    >
       <button
         type="button"
         onClick={() => navigate(-1)}
@@ -294,7 +307,13 @@ export function RecordingsScreen() {
           No hay grabaciones para los filtros seleccionados.
         </p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isDesktop ? "repeat(3, minmax(0, 1fr))" : "1fr",
+            gap: 12,
+          }}
+        >
           {recordings.map((r) => (
             <div
               key={r.id}
@@ -305,27 +324,45 @@ export function RecordingsScreen() {
                 overflow: "hidden",
                 display: "flex",
                 alignItems: "flex-start",
-                gap: 12,
+                gap: isDesktop ? 0 : 12,
+                flexDirection: isDesktop ? "column" : "row",
+                position: "relative",
               }}
             >
               <label
                 style={{
                   flexShrink: 0,
-                  padding: 16,
+                  padding: isDesktop ? 0 : 16,
                   display: "flex",
                   alignItems: "center",
                   cursor: "pointer",
+                  ...(isDesktop
+                    ? {
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        zIndex: 2,
+                        backgroundColor: "rgba(2, 6, 23, 0.75)",
+                        borderRadius: 999,
+                        width: 28,
+                        height: 28,
+                        justifyContent: "center",
+                      }
+                    : {}),
                 }}
               >
                 <input
                   type="checkbox"
                   checked={selectedIds.has(r.id)}
                   onChange={() => toggleSelect(r.id)}
-                  style={{ width: 18, height: 18, cursor: "pointer" }}
+                  style={{ width: isDesktop ? 16 : 18, height: isDesktop ? 16 : 18, cursor: "pointer" }}
                 />
               </label>
               <div style={{ flex: 1, minWidth: 0 }}>
-              <RecordingVideo src={`${API_BASE}/recordings/${r.id}/stream`} />
+              <RecordingVideo
+                src={`${API_BASE}/recordings/${r.id}/stream`}
+                maxHeight={isDesktop ? 280 : 240}
+              />
               <div style={{ padding: 12 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>
                   {r.camera.name}
