@@ -1,0 +1,9 @@
+# Copiar a docker-compose.override.yml y ajustar usuario/ruta si hace falta:
+#   cp docker-compose.override.example.yml docker-compose.override.yml
+#
+# docker-compose.override.yml está en .gitignore para no subir rutas locales.
+
+services:
+  backend:
+    volumes:
+      - /home/eaguilar/apps/data/camerakontrol:/app/recordings
