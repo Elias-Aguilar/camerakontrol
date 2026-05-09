@@ -43,12 +43,14 @@ services:
     volumes:
       - C:\_Developments\camerakontrol\recordings:/app/recordings
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # URL del API para el bundle (build time). Defínela en .env en la raíz del repo.
+        VITE_API_BASE: ${VITE_API_BASE:-http://localhost:4000}
     container_name: camerakontrol-frontend
     restart: unless-stopped
-    environment:
-      # URL del API tal como la ve el navegador (no uses el nombre del servicio Docker aquí).
-      VITE_API_BASE: ${VITE_API_BASE:-http://localhost:4000}
     depends_on:
       - backend
     ports:
