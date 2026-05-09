@@ -146,7 +146,7 @@ VITE_API_BASE=http://192.168.x.x:4000
 TZ=America/Argentina/Buenos_Aires
 ```
 
-Si cambias `VITE_API_BASE`, reconstruye el frontend: `docker compose up --build`.
+Si cambias `VITE_API_BASE`, reconstruye la imagen del frontend (el valor va **compilado** en el bundle): `docker compose build --no-cache frontend && docker compose up -d` o `docker compose up --build`.
 
 ### 4.5 Levantar el stack
 

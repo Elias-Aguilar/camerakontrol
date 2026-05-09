@@ -30,7 +30,12 @@ Servicios expuestos en el host:
 | API       | http://localhost:4000         |
 | Postgres  | `localhost:5433` (usuario/contraseña/BD: `camerakontrol`) |
 
-El backend aplica migraciones Prisma al arrancar (`prisma migrate deploy`) y guarda las grabaciones en el volumen Docker `recordings_data` (montado en `/app/recordings` dentro del contenedor).
+El backend aplica migraciones Prisma al arrancar (`prisma migrate deploy`) y guarda las grabaciones en la ruta montada en `/app/recordings` (volumen nombrado o carpeta del host, según tu `docker-compose`).
+
+**Frontend en Docker (producción)**
+
+- La imagen ejecuta **`npm run build`** al construir y sirve los estáticos con **`serve`** (no usa `vite dev`). Es más estable en servidores con poca RAM y evita errores de esbuild en runtime.
+- **`VITE_API_BASE`** se inyecta **en tiempo de build** (`build.args` en Compose). Debe ser la URL del API tal como la ve el navegador. Si la cambias en `.env`, vuelve a construir: `docker compose build --no-cache frontend` o `docker compose up --build`.
 
 **Grabación programada en Docker**
 
@@ -50,7 +55,14 @@ docker compose up -d db
 VITE_API_BASE=http://TU_IP_EN_LA_RED:4000
 ```
 
-Vuelve a construir o reinicia el servicio `frontend` para que Vite tome la variable.
+Vuelve a **construir la imagen del frontend** para que el valor quede en el bundle:
+
+```bash
+docker compose build --no-cache frontend
+docker compose up -d
+```
+
+(o `docker compose up --build`.)
 
 ---
 
