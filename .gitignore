@@ -6,6 +6,9 @@ node_modules/
 .env.local
 .env.*.local
 
+# Docker: overrides locales (rutas de volumen por máquina / usuario)
+docker-compose.override.yml
+
 # Recordings (videos)
 **/recordings/
 
