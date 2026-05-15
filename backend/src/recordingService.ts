@@ -186,6 +186,36 @@ async function startRecording(camera: { id: number; name: string; ip: string; po
   });
 }
 
+function removeEmptyDateDirs(camId: number, cutoffDateStr: string): void {
+  const camDir = path.join(RECORDINGS_BASE, String(camId));
+  try {
+    if (!fs.existsSync(camDir)) return;
+    const entries = fs.readdirSync(camDir);
+    for (const entry of entries) {
+      // Solo procesar entradas con formato YYYY-MM-DD anteriores al corte
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(entry) || entry >= cutoffDateStr) continue;
+      const datePath = path.join(camDir, entry);
+      try {
+        const stat = fs.statSync(datePath);
+        if (!stat.isDirectory()) continue;
+        if (fs.readdirSync(datePath).length === 0) {
+          fs.rmdirSync(datePath);
+          console.log(`[Recording] Carpeta vacía eliminada: ${datePath}`);
+        }
+      } catch (err) {
+        console.warn(`[Recording] No se pudo eliminar carpeta ${datePath}:`, err);
+      }
+    }
+    // Eliminar carpeta de cámara si quedó vacía
+    if (fs.readdirSync(camDir).length === 0) {
+      fs.rmdirSync(camDir);
+      console.log(`[Recording] Carpeta de cámara vacía eliminada: ${camDir}`);
+    }
+  } catch (err) {
+    console.warn(`[Recording] Error al limpiar carpetas de cámara ${camId}:`, err);
+  }
+}
+
 async function runCleanup(): Promise<void> {
   const now = Date.now();
   if (now - lastCleanupAt < CLEANUP_INTERVAL_MS) return;
@@ -201,6 +231,8 @@ async function runCleanup(): Promise<void> {
     const days = cam.retentionDays!;
     const cutoff = new Date(now);
     cutoff.setDate(cutoff.getDate() - days);
+    const cutoffDateStr = cutoff.toISOString().slice(0, 10); // YYYY-MM-DD
+
     const oldRecordings = await prisma.recording.findMany({
       where: { cameraId: cam.id, startedAt: { lt: cutoff } },
       select: { id: true, filePath: true, fileName: true, cameraId: true, startedAt: true },
@@ -222,6 +254,10 @@ async function runCleanup(): Promise<void> {
     if (oldRecordings.length > 0) {
       console.log(`[Recording] Retención: ${oldRecordings.length} grabaciones eliminadas (cámara ${cam.id}, >${days} días)`);
     }
+
+    // Segundo paso: eliminar carpetas de fecha vacías anteriores al corte,
+    // independientemente de si sus archivos estaban registrados en BD.
+    removeEmptyDateDirs(cam.id, cutoffDateStr);
   }
 }
 
