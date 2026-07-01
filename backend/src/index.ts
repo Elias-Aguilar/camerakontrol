@@ -49,7 +49,7 @@ app.get("/health", (_req, res) => {
 
 app.get("/cameras", async (_req, res) => {
   const cameras = await prisma.camera.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { name: "asc" },
   });
   res.json(cameras);
 });
@@ -293,7 +293,7 @@ app.get("/cameras/:id/stream", async (req, res) => {
         "-i",
         rtspUrl,
         "-vf",
-        "scale=480:-1",
+        "scale=720:-1",
         "-c:v",
         "mjpeg",
         "-f",

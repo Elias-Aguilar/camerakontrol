@@ -41,7 +41,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - C:\_Developments\camerakontrol\recordings:/app/recordings
+      - C:\_Developments\recordings:/app/recordings
   frontend:
     build:
       context: ./frontend

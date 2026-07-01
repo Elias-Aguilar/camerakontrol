@@ -142,7 +142,13 @@ export function CameraListScreen() {
   const loadCameras = () => {
     fetch(`${API_BASE}/cameras`)
       .then((r) => r.json())
-      .then(setCameras)
+      .then((data: Camera[]) => {
+        setCameras(
+          [...data].sort((a, b) =>
+            a.name.localeCompare(b.name, "es", { sensitivity: "base" })
+          )
+        );
+      })
       .catch((e) => console.error("Error loading cameras", e));
   };
 
@@ -255,7 +261,7 @@ export function CameraListScreen() {
                   {statusLabel(cam.id)}
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, marginTop: 15 }}>
                 <IconActionButton
                   title="Ver en vivo"
                   color="#5CBD80"
