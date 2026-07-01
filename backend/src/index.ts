@@ -286,14 +286,20 @@ app.get("/cameras/:id/stream", async (req, res) => {
     const ffmpegProcess = spawn(
       ffmpegCmd,
       [
+        "-loglevel",
+        "warning",
         "-rtsp_transport",
         "tcp",
         "-i",
         rtspUrl,
         "-vf",
         "scale=480:-1",
-        "-f",
+        "-c:v",
         "mjpeg",
+        "-f",
+        "mpjpeg",
+        "-boundary_tag",
+        "ffmpeg",
         "-q:v",
         "8",
         "-r",
@@ -314,7 +320,10 @@ app.get("/cameras/:id/stream", async (req, res) => {
     });
 
     ffmpegProcess.stderr.on("data", (data) => {
-      console.error(`FFmpeg error para c?mara ${id}:`, data.toString());
+      const msg = data.toString().trim();
+      if (/error|failed|invalid/i.test(msg) && !/^frame=/i.test(msg)) {
+        console.error(`[Stream] FFmpeg cam ${id}:`, msg);
+      }
     });
 
     req.on("close", () => {
