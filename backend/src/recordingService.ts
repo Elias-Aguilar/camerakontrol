@@ -37,9 +37,42 @@ function buildRtspUrl(camera: { ip: string; port: number; username: string | nul
   return `rtsp://${userPart}${camera.ip}:${basePort}/`;
 }
 
+/** Fecha calendario local YYYY-MM-DD (respeta TZ del proceso). */
+function toLocalDateStr(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** Suma o resta días a una fecha YYYY-MM-DD (aritmética de calendario local). */
+function addDaysToDateStr(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setDate(date.getDate() + days);
+  return toLocalDateStr(date);
+}
+
+/**
+ * Primer día de carpeta que se conserva con la retención configurada.
+ * Ej.: hoy 30/06 y 2 días → "2026-06-28" (se mantienen 28, 29 y 30).
+ */
+function getRetentionCutoffDateStr(retentionDays: number, now = new Date()): string {
+  return addDaysToDateStr(toLocalDateStr(now), -retentionDays);
+}
+
+function localDayStart(dateStr: string): Date {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return new Date(y, m - 1, d, 0, 0, 0, 0);
+}
+
 function resolveRecordingPath(r: { filePath: string; cameraId: number; fileName: string; startedAt: Date }): string | null {
-  const dateStr = r.startedAt.toISOString().slice(0, 10);
-  const relPath = path.join(String(r.cameraId), dateStr, r.fileName);
+  const localDateStr = toLocalDateStr(r.startedAt);
+  const utcDateStr = r.startedAt.toISOString().slice(0, 10);
+  const relPaths = [
+    path.join(String(r.cameraId), localDateStr, r.fileName),
+    path.join(String(r.cameraId), utcDateStr, r.fileName),
+  ];
   const bases = [
     RECORDINGS_BASE,
     path.join(process.cwd(), "recordings"),
@@ -54,11 +87,13 @@ function resolveRecordingPath(r: { filePath: string; cameraId: number; fileName:
   }
   for (const base of bases) {
     if (!base) continue;
-    const candidate = path.join(base, relPath);
-    try {
-      if (fs.existsSync(candidate)) return candidate;
-    } catch {
-      // ignore
+    for (const relPath of relPaths) {
+      const candidate = path.join(base, relPath);
+      try {
+        if (fs.existsSync(candidate)) return candidate;
+      } catch {
+        // ignore
+      }
     }
   }
   return null;
@@ -95,7 +130,7 @@ async function startRecording(camera: { id: number; name: string; ip: string; po
   }
 
   const now = new Date();
-  const dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+  const dateStr = toLocalDateStr(now);
   const timeStr = now.toTimeString().slice(0, 5).replace(":", "-"); // HH-mm
   const dir = path.join(RECORDINGS_BASE, String(camera.id), dateStr);
   const fileName = `cam_${camera.id}_${timeStr}.mp4`;
@@ -186,27 +221,37 @@ async function startRecording(camera: { id: number; name: string; ip: string; po
   });
 }
 
-function removeEmptyDateDirs(camId: number, cutoffDateStr: string): void {
+function purgeExpiredDateDirs(camId: number, cutoffDateStr: string): number {
   const camDir = path.join(RECORDINGS_BASE, String(camId));
+  let filesRemoved = 0;
   try {
-    if (!fs.existsSync(camDir)) return;
+    if (!fs.existsSync(camDir)) return 0;
     const entries = fs.readdirSync(camDir);
     for (const entry of entries) {
-      // Solo procesar entradas con formato YYYY-MM-DD anteriores al corte
       if (!/^\d{4}-\d{2}-\d{2}$/.test(entry) || entry >= cutoffDateStr) continue;
       const datePath = path.join(camDir, entry);
       try {
         const stat = fs.statSync(datePath);
         if (!stat.isDirectory()) continue;
+        for (const file of fs.readdirSync(datePath)) {
+          const filePath = path.join(datePath, file);
+          try {
+            const fileStat = fs.statSync(filePath);
+            if (!fileStat.isFile()) continue;
+            fs.unlinkSync(filePath);
+            filesRemoved++;
+          } catch (err) {
+            console.warn(`[Recording] No se pudo borrar ${filePath}:`, err);
+          }
+        }
         if (fs.readdirSync(datePath).length === 0) {
           fs.rmdirSync(datePath);
-          console.log(`[Recording] Carpeta vacía eliminada: ${datePath}`);
+          console.log(`[Recording] Carpeta de fecha eliminada: ${datePath}`);
         }
       } catch (err) {
-        console.warn(`[Recording] No se pudo eliminar carpeta ${datePath}:`, err);
+        console.warn(`[Recording] No se pudo limpiar carpeta ${datePath}:`, err);
       }
     }
-    // Eliminar carpeta de cámara si quedó vacía
     if (fs.readdirSync(camDir).length === 0) {
       fs.rmdirSync(camDir);
       console.log(`[Recording] Carpeta de cámara vacía eliminada: ${camDir}`);
@@ -214,6 +259,7 @@ function removeEmptyDateDirs(camId: number, cutoffDateStr: string): void {
   } catch (err) {
     console.warn(`[Recording] Error al limpiar carpetas de cámara ${camId}:`, err);
   }
+  return filesRemoved;
 }
 
 async function runCleanup(): Promise<void> {
@@ -227,37 +273,46 @@ async function runCleanup(): Promise<void> {
   });
   if (cameras.length === 0) return;
 
+  const nowDate = new Date(now);
   for (const cam of cameras) {
     const days = cam.retentionDays!;
-    const cutoff = new Date(now);
-    cutoff.setDate(cutoff.getDate() - days);
-    const cutoffDateStr = cutoff.toISOString().slice(0, 10); // YYYY-MM-DD
+    const cutoffDateStr = getRetentionCutoffDateStr(days, nowDate);
+    const cutoffStart = localDayStart(cutoffDateStr);
 
     const oldRecordings = await prisma.recording.findMany({
-      where: { cameraId: cam.id, startedAt: { lt: cutoff } },
+      where: { cameraId: cam.id, startedAt: { lt: cutoffStart } },
       select: { id: true, filePath: true, fileName: true, cameraId: true, startedAt: true },
     });
+    let dbRemoved = 0;
     for (const r of oldRecordings) {
       const fullPath = resolveRecordingPath(r);
       if (fullPath) {
         try {
           fs.unlinkSync(fullPath);
           removeEmptyDirsUpTo(fullPath);
+          await prisma.recording.delete({ where: { id: r.id } });
+          dbRemoved++;
         } catch (err) {
-          console.warn(`[Recording] No se pudo borrar ${fullPath}:`, err);
+          console.warn(`[Recording] No se pudo borrar ${fullPath} (se reintentará):`, err);
         }
       } else {
         console.warn(`[Recording] No se encontró archivo para grabación ${r.id}: ${r.filePath}`);
+        await prisma.recording.delete({ where: { id: r.id } });
+        dbRemoved++;
       }
-      await prisma.recording.delete({ where: { id: r.id } });
     }
-    if (oldRecordings.length > 0) {
-      console.log(`[Recording] Retención: ${oldRecordings.length} grabaciones eliminadas (cámara ${cam.id}, >${days} días)`);
+    if (dbRemoved > 0) {
+      console.log(
+        `[Recording] Retención: ${dbRemoved} grabaciones eliminadas (cámara ${cam.id}, conservar desde ${cutoffDateStr})`
+      );
     }
 
-    // Segundo paso: eliminar carpetas de fecha vacías anteriores al corte,
-    // independientemente de si sus archivos estaban registrados en BD.
-    removeEmptyDateDirs(cam.id, cutoffDateStr);
+    const orphanFilesRemoved = purgeExpiredDateDirs(cam.id, cutoffDateStr);
+    if (orphanFilesRemoved > 0) {
+      console.log(
+        `[Recording] Retención: ${orphanFilesRemoved} archivo(s) huérfano(s) eliminado(s) (cámara ${cam.id})`
+      );
+    }
   }
 }
 
