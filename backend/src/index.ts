@@ -255,7 +255,7 @@ app.get("/cameras/:id/stream", async (req, res) => {
       return res.status(404).json({ error: "C?mara no encontrada" });
     }
 
-    const basePort = 554;
+    const basePort = camera.port || 554;
     const userPart =
       camera.username && camera.password
         ? `${encodeURIComponent(camera.username)}:${encodeURIComponent(
@@ -263,7 +263,7 @@ app.get("/cameras/:id/stream", async (req, res) => {
           )}@`
         : "";
     const rtspUrl =
-      camera.protocol === "rtsp"
+      camera.protocol === "rtsp" && camera.ip
         ? `rtsp://${userPart}${camera.ip}:${basePort}/`
         : camera.rtspUrl;
 

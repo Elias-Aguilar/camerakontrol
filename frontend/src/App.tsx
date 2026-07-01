@@ -3,6 +3,7 @@ import { CameraListScreen } from "./screens/CameraListScreen";
 import { RecordingsScreen } from "./screens/RecordingsScreen";
 import { AddCamerasScreen } from "./screens/AddCamerasScreen";
 import { EditCameraScreen } from "./screens/EditCameraScreen";
+import { LiveViewScreen } from "./screens/LiveViewScreen";
 
 export function App() {
   return (
@@ -11,6 +12,7 @@ export function App() {
         <Route path="/cameras" element={<CameraListScreen />} />
         <Route path="/recordings" element={<RecordingsScreen />} />
         <Route path="/cameras/add" element={<AddCamerasScreen />} />
+        <Route path="/cameras/:id/live" element={<LiveViewScreen />} />
         <Route path="/cameras/:id/edit" element={<EditCameraScreen />} />
         <Route path="*" element={<Navigate to="/cameras" replace />} />
       </Routes>

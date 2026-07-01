@@ -161,9 +161,22 @@ export function CameraListScreen() {
                     : "Sin conexión"}
               </span>
               <button
+                onClick={() => navigate(`/cameras/${cam.id}/live`)}
+                style={{
+                  borderRadius: 999,
+                  border: "1px solid #5CBD80",
+                  background: "transparent",
+                  color: "#5CBD80",
+                  fontSize: 11,
+                  padding: "4px 8px",
+                  cursor: "pointer",
+                }}
+              >
+                Ver en vivo
+              </button>
+              <button
                 onClick={() => navigate(`/cameras/${cam.id}/edit`)}
                 style={{
-                  marginLeft: 8,
                   borderRadius: 999,
                   border: "1px solid #4B5563",
                   background: "transparent",
