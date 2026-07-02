@@ -311,11 +311,27 @@ app.get("/cameras/:id/stream", async (req, res) => {
       }
     );
 
+    let cleaned = false;
+    let clientDisconnected = false;
+
+    const cleanup = (fromClient = false) => {
+      if (cleaned) return;
+      cleaned = true;
+      if (fromClient) clientDisconnected = true;
+      ffmpegProcess.kill("SIGTERM");
+      try {
+        if (!res.writableEnded) res.end();
+      } catch {
+        // ignore
+      }
+    };
+
     ffmpegProcess.stdout.on("data", (chunk) => {
+      if (cleaned) return;
       try {
         res.write(chunk);
       } catch {
-        ffmpegProcess.kill();
+        cleanup(true);
       }
     });
 
@@ -326,16 +342,15 @@ app.get("/cameras/:id/stream", async (req, res) => {
       }
     });
 
-    req.on("close", () => {
-      ffmpegProcess.kill();
-      res.end();
-    });
+    req.on("close", () => cleanup(true));
+    req.on("aborted", () => cleanup(true));
+    res.on("close", () => cleanup(true));
 
     ffmpegProcess.on("exit", (code) => {
-      if (code !== 0 && code !== null) {
+      if (code !== 0 && code !== null && !clientDisconnected) {
         console.error(`FFmpeg termin? con c?digo ${code} para c?mara ${id}`);
       }
-      res.end();
+      cleanup();
     });
   } catch (err) {
     console.error("Error streaming camera", err);
