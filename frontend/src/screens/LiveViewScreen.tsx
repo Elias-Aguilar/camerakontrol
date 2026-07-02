@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 type Camera = {
   id: number;
@@ -36,74 +36,27 @@ function IconCollapse() {
   );
 }
 
-export function LiveViewScreen() {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const cameraId = Number(id);
-  const [camera, setCamera] = useState<Camera | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [streamKey, setStreamKey] = useState(0);
-  const [expanded, setExpanded] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
-  const streamContainerRef = useRef<HTMLDivElement>(null);
+function CameraStreamTile({
+  camera,
+  streamKey,
+  expanded,
+  onExpand,
+  onCollapse,
+  onStreamError,
+  showExpand = true,
+}: {
+  camera: Camera;
+  streamKey: number;
+  expanded?: boolean;
+  onExpand?: () => void;
+  onCollapse?: () => void;
+  onStreamError?: () => void;
+  showExpand?: boolean;
+}) {
+  const streamUrl = `${API_BASE}/cameras/${camera.id}/stream?k=${streamKey}`;
 
-  const exitExpanded = useCallback(() => setExpanded(false), []);
-
-  useEffect(() => {
-    if (Number.isNaN(cameraId)) {
-      setError("Cámara no válida");
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    fetch(`${API_BASE}/cameras/${cameraId}`)
-      .then((r) => {
-        if (!r.ok) throw new Error("Cámara no encontrada");
-        return r.json();
-      })
-      .then((data: Camera) => {
-        setCamera(data);
-        setStreamKey((k) => k + 1);
-      })
-      .catch(() => setError("No se pudo cargar la cámara"))
-      .finally(() => setLoading(false));
-  }, [cameraId]);
-
-  useEffect(() => {
-    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
-    if (!expanded) return;
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") exitExpanded();
-    };
-
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [expanded, exitExpanded]);
-
-  const streamUrl =
-    camera && !error
-      ? `${API_BASE}/cameras/${camera.id}/stream?k=${streamKey}`
-      : null;
-
-  const streamPlayer = streamUrl ? (
+  return (
     <div
-      ref={streamContainerRef}
       style={{
         position: "relative",
         borderRadius: expanded ? 0 : 16,
@@ -120,51 +73,237 @@ export function LiveViewScreen() {
       <img
         key={streamKey}
         src={streamUrl}
-        alt={camera?.name ?? "Vista en vivo"}
+        alt={camera.name}
         style={{
           width: "100%",
           height: "100%",
           objectFit: "contain",
           display: "block",
-          cursor: expanded ? "default" : "pointer",
+          cursor: expanded || !showExpand ? "default" : "pointer",
         }}
         onClick={() => {
-          if (!expanded) setExpanded(true);
+          if (!expanded && showExpand && onExpand) onExpand();
         }}
-        onError={() => setError("No se pudo iniciar la transmisión en vivo")}
+        onError={() => onStreamError?.()}
       />
-      <button
-        type="button"
-        title={expanded ? "Salir de pantalla completa" : "Expandir"}
-        aria-label={expanded ? "Salir de pantalla completa" : "Expandir"}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (expanded) exitExpanded();
-          else setExpanded(true);
-        }}
+      {!expanded && (
+        <div
+          style={{
+            position: "absolute",
+            top: 8,
+            left: 8,
+            padding: "4px 8px",
+            borderRadius: 6,
+            background: "rgba(2, 6, 23, 0.75)",
+            fontSize: 11,
+            fontWeight: 600,
+            color: "#F9FAFB",
+          }}
+        >
+          {camera.name}
+        </div>
+      )}
+      {showExpand && (
+        <button
+          type="button"
+          title={expanded ? "Salir de pantalla completa" : "Expandir"}
+          aria-label={expanded ? "Salir de pantalla completa" : "Expandir"}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (expanded && onCollapse) onCollapse();
+            else if (onExpand) onExpand();
+          }}
+          style={{
+            position: "absolute",
+            right: 12,
+            bottom: 12,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            border: "1px solid #374151",
+            background: "rgba(2, 6, 23, 0.75)",
+            color: "#E5E7EB",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          {expanded ? <IconCollapse /> : <IconExpand />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function LiveViewScreen() {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const isMultiRoute = !id;
+  const multiIds = isMultiRoute
+    ? (searchParams.get("ids") ?? "")
+        .split(",")
+        .map((s) => Number(s.trim()))
+        .filter((n) => !Number.isNaN(n) && n > 0)
+    : [];
+  const singleCameraId = id ? Number(id) : null;
+
+  const [cameras, setCameras] = useState<Camera[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [streamKey, setStreamKey] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
+  const streamContainerRef = useRef<HTMLDivElement>(null);
+
+  const exitExpanded = useCallback(() => setExpanded(false), []);
+  const cameraCount = cameras.length;
+  const isSingleView = cameraCount === 1;
+
+  useEffect(() => {
+    if (isMultiRoute) {
+      if (multiIds.length === 0) {
+        setError("No se seleccionaron cámaras");
+        setLoading(false);
+        return;
+      }
+      if (multiIds.length > 4) {
+        setError("Máximo 4 cámaras en vista en vivo");
+        setLoading(false);
+        return;
+      }
+    } else if (singleCameraId === null || Number.isNaN(singleCameraId)) {
+      setError("Cámara no válida");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const idsToLoad = isMultiRoute ? multiIds : [singleCameraId!];
+
+    Promise.all(
+      idsToLoad.map((camId) =>
+        fetch(`${API_BASE}/cameras/${camId}`).then((r) => {
+          if (!r.ok) throw new Error(`Cámara ${camId} no encontrada`);
+          return r.json() as Promise<Camera>;
+        })
+      )
+    )
+      .then((loaded) => {
+        const sorted = [...loaded].sort((a, b) =>
+          a.name.localeCompare(b.name, "es", { sensitivity: "base" })
+        );
+        setCameras(sorted);
+        setStreamKey((k) => k + 1);
+      })
+      .catch(() => setError("No se pudieron cargar las cámaras"))
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, searchParams.toString()]);
+
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 1024);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    if (!expanded || !isSingleView) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") exitExpanded();
+    };
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [expanded, exitExpanded, isSingleView]);
+
+  const handleStreamError = () => {
+    setError("No se pudo iniciar la transmisión en vivo");
+  };
+
+  const renderStreamLayout = () => {
+    if (cameras.length === 0) return null;
+
+    if (cameraCount === 1) {
+      return (
+        <div ref={streamContainerRef}>
+          <CameraStreamTile
+            camera={cameras[0]}
+            streamKey={streamKey}
+            expanded={expanded}
+            onExpand={() => setExpanded(true)}
+            onCollapse={exitExpanded}
+            onStreamError={handleStreamError}
+          />
+        </div>
+      );
+    }
+
+    if (cameraCount === 2) {
+      return (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+            width: "100%",
+          }}
+        >
+          {cameras.map((cam) => (
+            <CameraStreamTile
+              key={cam.id}
+              camera={cam}
+              streamKey={streamKey}
+              onStreamError={handleStreamError}
+              showExpand={false}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div
         style={{
-          position: "absolute",
-          right: 12,
-          bottom: 12,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 36,
-          height: 36,
-          borderRadius: 8,
-          border: "1px solid #374151",
-          background: "rgba(2, 6, 23, 0.75)",
-          color: "#E5E7EB",
-          cursor: "pointer",
-          padding: 0,
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gridTemplateRows: "1fr 1fr",
+          gap: 8,
+          width: "100%",
+          aspectRatio: isDesktop ? "16 / 9" : undefined,
+          minHeight: isDesktop ? undefined : 280,
         }}
       >
-        {expanded ? <IconCollapse /> : <IconExpand />}
-      </button>
-    </div>
-  ) : null;
+        {cameras.map((cam) => (
+          <CameraStreamTile
+            key={cam.id}
+            camera={cam}
+            streamKey={streamKey}
+            onStreamError={handleStreamError}
+            showExpand={false}
+          />
+        ))}
+      </div>
+    );
+  };
 
-  if (expanded && streamUrl) {
+  const subtitle =
+    cameraCount === 1
+      ? cameras[0]?.name ?? "Cargando…"
+      : `${cameraCount} cámaras seleccionadas`;
+
+  if (expanded && isSingleView && cameras.length === 1) {
     return (
       <div
         style={{
@@ -190,7 +329,7 @@ export function LiveViewScreen() {
         >
           <div style={{ minWidth: 0 }}>
             <p style={{ fontSize: 14, fontWeight: 600, margin: 0, color: "#F9FAFB" }}>
-              {camera?.name ?? "Vista en vivo"}
+              {cameras[0].name}
             </p>
             <p style={{ fontSize: 11, margin: "2px 0 0", color: "#5CBD80" }}>En vivo</p>
           </div>
@@ -211,7 +350,13 @@ export function LiveViewScreen() {
             Salir
           </button>
         </div>
-        {streamPlayer}
+        <CameraStreamTile
+          camera={cameras[0]}
+          streamKey={streamKey}
+          expanded
+          onCollapse={exitExpanded}
+          onStreamError={handleStreamError}
+        />
       </div>
     );
   }
@@ -222,6 +367,9 @@ export function LiveViewScreen() {
         maxWidth: isDesktop ? 1280 : "100%",
         margin: "0 auto",
         padding: isDesktop ? "2rem 1.5rem" : "1rem",
+        height: cameraCount >= 3 && isDesktop ? "calc(100vh - 4rem)" : undefined,
+        display: cameraCount >= 3 && isDesktop ? "flex" : undefined,
+        flexDirection: cameraCount >= 3 && isDesktop ? "column" : undefined,
       }}
     >
       <button
@@ -234,6 +382,7 @@ export function LiveViewScreen() {
           background: "none",
           border: "none",
           cursor: "pointer",
+          flexShrink: 0,
         }}
       >
         ← Volver
@@ -245,15 +394,14 @@ export function LiveViewScreen() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexShrink: 0,
         }}
       >
         <div>
           <h2 style={{ fontSize: 20, marginBottom: 4 }}>Vista en vivo</h2>
-          <p style={{ fontSize: 12, color: "#9CA3AF" }}>
-            {camera ? camera.name : "Cargando…"}
-          </p>
+          <p style={{ fontSize: 12, color: "#9CA3AF" }}>{subtitle}</p>
         </div>
-        {streamUrl && (
+        {cameras.length > 0 && !error && (
           <div
             style={{
               borderRadius: 999,
@@ -272,15 +420,30 @@ export function LiveViewScreen() {
         <p style={{ fontSize: 13, color: "#9CA3AF" }}>Conectando con la cámara…</p>
       )}
 
-      {error && (
-        <p style={{ fontSize: 13, color: "#F87171" }}>{error}</p>
+      {error && <p style={{ fontSize: 13, color: "#F87171" }}>{error}</p>}
+
+      {!loading && !error && (
+        <div
+          style={{
+            flex: cameraCount >= 3 ? 1 : undefined,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {renderStreamLayout()}
+        </div>
       )}
 
-      {streamPlayer}
-
-      {streamUrl && (
-        <p style={{ marginTop: 12, fontSize: 11, color: "#64748B" }}>
+      {isSingleView && cameras.length > 0 && !error && (
+        <p style={{ marginTop: 12, fontSize: 11, color: "#64748B", flexShrink: 0 }}>
           Toca la imagen o el botón de expandir para ver en pantalla completa.
+        </p>
+      )}
+
+      {cameraCount >= 2 && cameras.length > 0 && !error && (
+        <p style={{ marginTop: 12, fontSize: 11, color: "#64748B", flexShrink: 0 }}>
+          Transmitiendo en tiempo real desde cámaras conectadas.
         </p>
       )}
     </div>
