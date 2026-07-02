@@ -10,6 +10,17 @@ type Camera = {
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 
+const BLANK_IMG_SRC =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+function abortMjpegStream(img: HTMLImageElement | null) {
+  if (!img) return;
+  img.onload = null;
+  img.onerror = null;
+  img.src = BLANK_IMG_SRC;
+  img.removeAttribute("src");
+}
+
 function IconExpand() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -44,6 +55,7 @@ function CameraStreamTile({
   onCollapse,
   onStreamError,
   showExpand = true,
+  onRegisterAbort,
 }: {
   camera: Camera;
   streamKey: number;
@@ -52,8 +64,19 @@ function CameraStreamTile({
   onCollapse?: () => void;
   onStreamError?: () => void;
   showExpand?: boolean;
+  onRegisterAbort?: (abort: () => void) => () => void;
 }) {
+  const imgRef = useRef<HTMLImageElement>(null);
   const streamUrl = `${API_BASE}/cameras/${camera.id}/stream?k=${streamKey}`;
+
+  useEffect(() => {
+    const abort = () => abortMjpegStream(imgRef.current);
+    const unregister = onRegisterAbort?.(abort);
+    return () => {
+      abort();
+      unregister?.();
+    };
+  }, [streamUrl, onRegisterAbort]);
 
   return (
     <div
@@ -71,7 +94,7 @@ function CameraStreamTile({
       }}
     >
       <img
-        key={streamKey}
+        ref={imgRef}
         src={streamUrl}
         alt={camera.name}
         style={{
@@ -157,6 +180,21 @@ export function LiveViewScreen() {
   const [expanded, setExpanded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
   const streamContainerRef = useRef<HTMLDivElement>(null);
+  const streamAbortFns = useRef(new Set<() => void>());
+
+  const registerStreamAbort = useCallback((abort: () => void) => {
+    streamAbortFns.current.add(abort);
+    return () => {
+      streamAbortFns.current.delete(abort);
+    };
+  }, []);
+
+  const abortAllStreams = useCallback(() => {
+    for (const abort of streamAbortFns.current) {
+      abort();
+    }
+    streamAbortFns.current.clear();
+  }, []);
 
   const exitExpanded = useCallback(() => setExpanded(false), []);
   const cameraCount = cameras.length;
@@ -228,6 +266,17 @@ export function LiveViewScreen() {
     };
   }, [expanded, exitExpanded, isSingleView]);
 
+  useEffect(() => {
+    return () => {
+      abortAllStreams();
+    };
+  }, [abortAllStreams]);
+
+  const handleBack = useCallback(() => {
+    abortAllStreams();
+    navigate("/cameras");
+  }, [abortAllStreams, navigate]);
+
   const handleStreamError = () => {
     setError("No se pudo iniciar la transmisión en vivo");
   };
@@ -245,6 +294,7 @@ export function LiveViewScreen() {
             onExpand={() => setExpanded(true)}
             onCollapse={exitExpanded}
             onStreamError={handleStreamError}
+            onRegisterAbort={registerStreamAbort}
           />
         </div>
       );
@@ -267,6 +317,7 @@ export function LiveViewScreen() {
               streamKey={streamKey}
               onStreamError={handleStreamError}
               showExpand={false}
+              onRegisterAbort={registerStreamAbort}
             />
           ))}
         </div>
@@ -292,6 +343,7 @@ export function LiveViewScreen() {
             streamKey={streamKey}
             onStreamError={handleStreamError}
             showExpand={false}
+            onRegisterAbort={registerStreamAbort}
           />
         ))}
       </div>
@@ -356,6 +408,7 @@ export function LiveViewScreen() {
           expanded
           onCollapse={exitExpanded}
           onStreamError={handleStreamError}
+          onRegisterAbort={registerStreamAbort}
         />
       </div>
     );
@@ -374,7 +427,7 @@ export function LiveViewScreen() {
     >
       <button
         type="button"
-        onClick={() => navigate("/cameras")}
+        onClick={handleBack}
         style={{
           marginBottom: 8,
           fontSize: 12,
