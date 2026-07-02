@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../ui/NotificationsProvider";
 
@@ -11,6 +11,7 @@ type Camera = {
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4001";
+const MAX_LIVE_SELECTION = 4;
 
 function IconActionButton({
   title,
@@ -48,20 +49,6 @@ function IconActionButton({
     >
       {children}
     </button>
-  );
-}
-
-function IconLive() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
@@ -103,6 +90,8 @@ function IconTrash() {
 export function CameraListScreen() {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [statusMap, setStatusMap] = useState<Record<number, boolean | "loading">>({});
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const selectionInitialized = useRef(false);
   const navigate = useNavigate();
   const { showToast, confirm } = useNotifications();
 
@@ -139,6 +128,23 @@ export function CameraListScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cameras]);
 
+  useEffect(() => {
+    if (selectionInitialized.current) return;
+    const stillLoading = cameras.some(
+      (c) => statusMap[c.id] === "loading" || statusMap[c.id] === undefined
+    );
+    if (stillLoading || cameras.length === 0) return;
+
+    const connectedIds = cameras
+      .filter((c) => statusMap[c.id] === true)
+      .map((c) => c.id);
+
+    if (connectedIds.length > 0 && connectedIds.length < 5) {
+      setSelectedIds(new Set(connectedIds.slice(0, MAX_LIVE_SELECTION)));
+    }
+    selectionInitialized.current = true;
+  }, [cameras, statusMap]);
+
   const loadCameras = () => {
     fetch(`${API_BASE}/cameras`)
       .then((r) => r.json())
@@ -150,6 +156,34 @@ export function CameraListScreen() {
         );
       })
       .catch((e) => console.error("Error loading cameras", e));
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (next.size < MAX_LIVE_SELECTION) {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleVerEnVivo = () => {
+    if (selectedIds.size === 0) return;
+    const sorted = Array.from(selectedIds).sort((a, b) => {
+      const camA = cameras.find((c) => c.id === a);
+      const camB = cameras.find((c) => c.id === b);
+      return (camA?.name ?? "").localeCompare(camB?.name ?? "", "es", {
+        sensitivity: "base",
+      });
+    });
+    if (sorted.length === 1) {
+      navigate(`/cameras/${sorted[0]}/live`);
+    } else {
+      navigate(`/cameras/live?ids=${sorted.join(",")}`);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -165,6 +199,11 @@ export function CameraListScreen() {
       const res = await fetch(`${API_BASE}/cameras/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Error del servidor");
       setCameras((prev) => prev.filter((c) => c.id !== id));
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       showToast("Cámara eliminada.", "success");
     } catch (e) {
       console.error("Error deleting camera", e);
@@ -182,6 +221,8 @@ export function CameraListScreen() {
     return statusMap[id] ? "#5CBD80" : "#EF4444";
   };
 
+  const canSelectMore = selectedIds.size < MAX_LIVE_SELECTION;
+
   return (
     <div style={{ maxWidth: 420, margin: "0 auto", padding: "2rem 1.5rem" }}>
       <header style={{ marginBottom: 16 }}>
@@ -191,7 +232,7 @@ export function CameraListScreen() {
         </p>
       </header>
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         <button
           onClick={() => navigate("/cameras/add")}
           style={{
@@ -226,69 +267,127 @@ export function CameraListScreen() {
         </button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {cameras.map((cam) => (
-          <div
-            key={cam.id}
+      {cameras.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <button
+            type="button"
+            onClick={handleVerEnVivo}
+            disabled={selectedIds.size === 0}
             style={{
-              padding: "12px 14px",
-              borderRadius: 16,
-              border: "1px solid #1F2937",
-              backgroundColor: "#020617",
+              width: "100%",
+              height: 40,
+              borderRadius: 999,
+              border: "1px solid #5CBD80",
+              backgroundColor: selectedIds.size > 0 ? "#5CBD80" : "transparent",
+              color: selectedIds.size > 0 ? "#022C22" : "#5CBD80",
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: selectedIds.size > 0 ? "pointer" : "not-allowed",
+              opacity: selectedIds.size === 0 ? 0.6 : 1,
             }}
           >
+            Ver en vivo{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
+          </button>
+          {selectedIds.size >= MAX_LIVE_SELECTION && (
+            <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6, marginBottom: 0 }}>
+              Máximo {MAX_LIVE_SELECTION} cámaras en vista en vivo.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {cameras.map((cam) => {
+          const isSelected = selectedIds.has(cam.id);
+          const checkboxDisabled = !isSelected && !canSelectMore;
+
+          return (
             <div
+              key={cam.id}
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: 10,
+                padding: "12px 14px",
+                borderRadius: 16,
+                border: `1px solid ${isSelected ? "#5CBD80" : "#1F2937"}`,
+                backgroundColor: "#020617",
               }}
             >
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontSize: 15, fontWeight: 600 }}>{cam.name}</div>
-                <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
-                  {cam.ip}:{cam.port}
-                </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  gap: 10,
+                }}
+              >
+                <label
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10,
+                    minWidth: 0,
+                    flex: 1,
+                    cursor: checkboxDisabled ? "not-allowed" : "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    disabled={checkboxDisabled}
+                    onChange={() => toggleSelect(cam.id)}
+                    style={{
+                      width: 16,
+                      height: 16,
+                      marginTop: 2,
+                      cursor: checkboxDisabled ? "not-allowed" : "pointer",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 15, fontWeight: 600 }}>{cam.name}</div>
+                    <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
+                      {cam.ip}:{cam.port}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: statusColor(cam.id),
+                        marginTop: 6,
+                      }}
+                      title={statusLabel(cam.id)}
+                    >
+                      {statusLabel(cam.id)}
+                    </div>
+                  </div>
+                </label>
                 <div
                   style={{
-                    fontSize: 11,
-                    color: statusColor(cam.id),
-                    marginTop: 6,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    flexShrink: 0,
+                    marginTop: 15,
                   }}
-                  title={statusLabel(cam.id)}
                 >
-                  {statusLabel(cam.id)}
+                  <IconActionButton
+                    title="Editar"
+                    color="#E5E7EB"
+                    onClick={() => navigate(`/cameras/${cam.id}/edit`)}
+                  >
+                    <IconEdit />
+                  </IconActionButton>
+                  <IconActionButton
+                    title="Eliminar"
+                    color="#F97373"
+                    borderColor="#7F1D1D"
+                    onClick={() => handleDelete(cam.id)}
+                  >
+                    <IconTrash />
+                  </IconActionButton>
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, marginTop: 15 }}>
-                <IconActionButton
-                  title="Ver en vivo"
-                  color="#5CBD80"
-                  borderColor="#5CBD80"
-                  onClick={() => navigate(`/cameras/${cam.id}/live`)}
-                >
-                  <IconLive />
-                </IconActionButton>
-                <IconActionButton
-                  title="Editar"
-                  color="#E5E7EB"
-                  onClick={() => navigate(`/cameras/${cam.id}/edit`)}
-                >
-                  <IconEdit />
-                </IconActionButton>
-                <IconActionButton
-                  title="Eliminar"
-                  color="#F97373"
-                  borderColor="#7F1D1D"
-                  onClick={() => handleDelete(cam.id)}
-                >
-                  <IconTrash />
-                </IconActionButton>
-              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         {cameras.length === 0 && (
           <p style={{ color: "#6B7280", fontSize: 13 }}>
             Aún no tienes cámaras registradas.

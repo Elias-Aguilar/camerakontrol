@@ -12,6 +12,7 @@ export function App() {
         <Route path="/cameras" element={<CameraListScreen />} />
         <Route path="/recordings" element={<RecordingsScreen />} />
         <Route path="/cameras/add" element={<AddCamerasScreen />} />
+        <Route path="/cameras/live" element={<LiveViewScreen />} />
         <Route path="/cameras/:id/live" element={<LiveViewScreen />} />
         <Route path="/cameras/:id/edit" element={<EditCameraScreen />} />
         <Route path="*" element={<Navigate to="/cameras" replace />} />
