@@ -15,3 +15,7 @@ services:
       - /home/eaguilar/apps/data/camerakontrol:/data/recordings:ro
       # RW: rclone renueva el token OAuth en rclone.conf
       - ./autobackup/config:/config
+
+  frontend:
+    ports:
+      - "8080:5173"
