@@ -1,0 +1,14 @@
+# Copia este archivo a config/rclone.conf y completa el OAuth con rclone.
+#   mkdir -p autobackup/config
+#   cp autobackup/rclone.conf.example autobackup/config/rclone.conf
+# Luego: rclone config  (o sigue el README.md)
+#
+# El remoto debe llamarse "camerakontrol" (o cambia REMOTE_PATH / BACKUP_REMOTE_PATH).
+
+[camerakontrol]
+type = drive
+scope = drive
+# client_id = ...        # opcional: credenciales de tu proyecto Google Cloud
+# client_secret = ...
+# token = {...}          # lo rellena rclone tras autorizar
+# team_drive =

@@ -12,6 +12,11 @@ docker-compose.override.yml
 # Recordings (videos)
 **/recordings/
 
+# Autobackup: credenciales rclone (token OAuth)
+autobackup/config/rclone.conf
+autobackup/config/*.conf
+!autobackup/config/.gitkeep
+
 # Build
 dist/
 build/

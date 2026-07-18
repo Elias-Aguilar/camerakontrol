@@ -42,6 +42,25 @@ services:
       - "4000:4000"
     volumes:
       - C:\_Developments\recordings:/app/recordings
+
+  # Copia periódica de .mp4 cerrados a Google Drive (rclone). Ver autobackup/README.md.
+  # Requiere autobackup/config/rclone.conf (OAuth). No sube ese fichero a git.
+  autobackup:
+    build: ./autobackup
+    container_name: camerakontrol-autobackup
+    restart: unless-stopped
+    environment:
+      SOURCE_PATH: /data/recordings
+      REMOTE_PATH: ${BACKUP_REMOTE_PATH:-camerakontrol:CameraKontrol/recordings}
+      BACKUP_INTERVAL: ${BACKUP_INTERVAL:-4h}
+      MIN_AGE: ${BACKUP_MIN_AGE:-90m}
+      INCLUDE: "**/*.mp4"
+      TZ: ${TZ:-UTC}
+    volumes:
+      - C:\_Developments\recordings:/data/recordings:ro
+      # RW: rclone renueva el token OAuth en rclone.conf
+      - ./autobackup/config:/config
+
   frontend:
     build:
       context: ./frontend
