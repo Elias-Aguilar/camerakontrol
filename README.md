@@ -136,8 +136,10 @@ Abre la URL que indique Vite (por defecto http://localhost:5173).
 
 - **Login** (flujo simulado; redirección a la lista de cámaras).
 - **Lista de cámaras:** estado de conexión (comprobación TCP al puerto RTSP), editar, eliminar.
-- **Agregar cámara:** descubrimiento ONVIF en red y alta manual (IP, puerto, credenciales, RTSP).
-- **Editar cámara:** datos de conexión y **grabación programada**: hasta **tres franjas horarias** en formato 24 h, duración de fragmento por archivo, retención en días.
+- **Agregar cámara:** descubrimiento ONVIF en red y alta manual. Tipos de cámara:
+  - **Cámara IP (RTSP):** IP, puerto (554 por defecto) y credenciales.
+  - **Webcam (HTTP / MJPEG):** IP, puerto (8081 por defecto) y ruta del stream (`/` por defecto), sin credenciales. Ejemplo: una webcam servida con `motion` en `http://192.168.1.33:8081/`. Es **solo de vista en vivo**: no se graba, y el backend reenvía el MJPEG original sin re-codificar.
+- **Editar cámara:** datos de conexión y, para cámaras RTSP, **grabación programada**: hasta **tres franjas horarias** en formato 24 h, duración de fragmento por archivo, retención en días.
 - **Grabaciones:** filtro por fecha y cámara, reproducción en el navegador, descarga y borrado (individual o múltiple).
 
 No hay pantalla de **vista en vivo** en la aplicación web actual.
@@ -161,7 +163,7 @@ No hay pantalla de **vista en vivo** en la aplicación web actual.
 | GET | `/recordings/:id/download` | Descargar archivo |
 | DELETE | `/recordings` | Cuerpo JSON `{ "ids": [1,2,...] }` |
 
-Existen también rutas técnicas sobre flujo RTSP (`/cameras/:id/snapshot`, `/cameras/:id/stream`) pensadas para uso puntual o integraciones; **no forman parte del flujo principal de la UI descrita arriba**.
+Existen también rutas técnicas de vídeo en vivo (`/cameras/:id/snapshot`, `/cameras/:id/stream`). Para cámaras RTSP, `/stream` convierte con FFmpeg a MJPEG; para webcams HTTP reenvía el stream original tal cual.
 
 ---
 
