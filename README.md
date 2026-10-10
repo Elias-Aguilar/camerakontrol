@@ -152,7 +152,7 @@ No hay pantalla de **vista en vivo** en la aplicación web actual.
 |--------|------|-------------|
 | GET | `/health` | Estado del servicio |
 | GET | `/cameras` | Lista de cámaras |
-| GET | `/cameras/discover` | Descubrimiento ONVIF |
+| GET | `/cameras/discover` | Descubrimiento ONVIF (requiere multicast, ver nota) |
 | POST | `/cameras` | Crear cámara |
 | GET | `/cameras/:id` | Detalle |
 | GET | `/cameras/:id/status` | Comprobar si el host/puerto responde |
@@ -162,6 +162,8 @@ No hay pantalla de **vista en vivo** en la aplicación web actual.
 | GET | `/recordings/:id/stream` | Reproducir MP4 (soporta Range) |
 | GET | `/recordings/:id/download` | Descargar archivo |
 | DELETE | `/recordings` | Cuerpo JSON `{ "ids": [1,2,...] }` |
+
+**Descubrimiento ONVIF.** `GET /cameras/discover` envía un probe WS-Discovery por multicast UDP (`239.255.255.250:3702`). Ese tráfico no atraviesa la red bridge de Docker, así que en el servidor Ubuntu el servicio `backend` usa `network_mode: host` (definido en `docker-compose.override.example.yml`) y alcanza Postgres por `127.0.0.1:5433`. Si el servidor tiene varias interfaces de red, fija la de la LAN con `DISCOVERY_INTERFACE` (nombre de interfaz, ver `ip -br a`) en el `.env` de la raíz. En Docker Desktop para Windows el modo host no está soportado y el descubrimiento no funciona: usar el alta manual. Desde la pantalla, "Agregar" sobre una cámara encontrada precarga el formulario con su IP, puerto y ruta ONVIF; solo faltan usuario y clave.
 
 Existen también rutas técnicas de vídeo en vivo (`/cameras/:id/snapshot`, `/cameras/:id/stream`). Para cámaras RTSP, `/stream` convierte con FFmpeg a MJPEG; para webcams HTTP reenvía el stream original tal cual.
 

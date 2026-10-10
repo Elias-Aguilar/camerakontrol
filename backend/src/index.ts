@@ -13,6 +13,7 @@ import * as net from "net";
 import { startRecordingService } from "./recordingService";
 import { normalizeRecordingWindowsInput } from "./recordingSchedule";
 import * as http from "http";
+import * as url from "url";
 import {
   CAMERA_PROTOCOLS,
   DEFAULT_HTTP_PORT,
@@ -31,6 +32,7 @@ function parseConnectionInput(body: any): {
   password: string | null | undefined;
   protocol: string;
   streamPath: string | null;
+  onvifPath: string | null;
   rtspUrl: string | null | undefined;
 } {
   const protocol = (CAMERA_PROTOCOLS as readonly string[]).includes(body.protocol) ? body.protocol : "rtsp";
@@ -39,11 +41,12 @@ function parseConnectionInput(body: any): {
   const username: string | null | undefined = isHttp ? null : body.username || undefined;
   const password: string | null | undefined = isHttp ? null : body.password || undefined;
   const streamPath = isHttp ? normalizeStreamPath(body.streamPath) : null;
+  const onvifPath = !isHttp && typeof body.onvifPath === "string" && body.onvifPath ? body.onvifPath : null;
   const rtspUrl = isHttp
     ? null
-    : buildSourceUrl({ ip: body.ip, port, username: username ?? null, password: password ?? null, protocol, rtspUrl: null }) ??
+    : buildSourceUrl({ ip: body.ip, port, username: username ?? null, password: password ?? null, protocol, rtspUrl: null, onvifPath }) ??
       undefined;
-  return { ip: body.ip, port, username, password, protocol, streamPath, rtspUrl };
+  return { ip: body.ip, port, username, password, protocol, streamPath, onvifPath, rtspUrl };
 }
 
 /** Reenvía el MJPEG de una webcam HTTP tal cual, sin re-codificar. */
@@ -131,23 +134,34 @@ app.get("/cameras", async (_req, res) => {
 app.get("/cameras/discover", async (_req, res) => {
   try {
     const devices = await new Promise<any[]>((resolve, reject) => {
-      onvif.Discovery.probe((err: unknown, cams: any[]) => {
-        if (err) return reject(err);
-        const mapped = (cams || []).map((cam: any, index: number) => ({
-          id: index,
-          name: cam.name || cam.hostname || "Cámara ONVIF",
-          address: cam.address,
-          hostname: cam.hostname,
-          port: cam.port,
-          xaddr: cam.xaddrs?.[0],
-        }));
+      const options: { timeout: number; device?: string } = { timeout: 8000 };
+      if (process.env.DISCOVERY_INTERFACE) options.device = process.env.DISCOVERY_INTERFACE;
+      // La librería pasa como error un array de fallos de parseo de respuestas ajenas;
+      // solo un Error suelto indica que el probe multicast no pudo enviarse.
+      onvif.Discovery.probe(options, (err: unknown, cams: any[]) => {
+        if (err && !Array.isArray(err)) return reject(err);
+        if (Array.isArray(err) && err.length) {
+          console.warn(`[Discover] ${err.length} respuesta(s) ignorada(s) durante el probe`);
+        }
+        const mapped = (cams || []).map((cam: any, index: number) => {
+          const xaddr = cam.xaddrs?.[0];
+          return {
+            id: index,
+            name: cam.name || cam.hostname || "Cámara ONVIF",
+            address: cam.address,
+            hostname: cam.hostname,
+            port: xaddr?.port ? Number(xaddr.port) : cam.port,
+            path: xaddr?.path,
+            xaddr: xaddr ? url.format(xaddr) : undefined,
+          };
+        });
         resolve(mapped);
       });
     });
     res.json(devices);
   } catch (err) {
     console.error("Error discovering cameras", err);
-    res.status(500).json({ error: "Error buscando cámaras en la red" });
+    res.status(500).json({ error: "No se pudo enviar el probe de descubrimiento" });
   }
 });
 

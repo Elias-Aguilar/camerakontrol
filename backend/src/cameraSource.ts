@@ -12,6 +12,8 @@ export type CameraSourceFields = {
   protocol: string;
   rtspUrl: string | null;
   streamPath?: string | null;
+  /** Ruta ONVIF del XAddr, usada por cámaras RTSP descubiertas en la red. */
+  onvifPath?: string | null;
 };
 
 export function isHttpCamera(camera: { protocol: string }): boolean {
@@ -37,7 +39,8 @@ export function buildSourceUrl(camera: CameraSourceFields): string | null {
       camera.username && camera.password
         ? `${encodeURIComponent(camera.username)}:${encodeURIComponent(camera.password)}@`
         : "";
-    return `rtsp://${userPart}${camera.ip}:${port}/`;
+    const pathPart = camera.onvifPath && camera.onvifPath !== "/" ? camera.onvifPath : "/";
+    return `rtsp://${userPart}${camera.ip}:${port}${pathPart}`;
   }
   return camera.rtspUrl;
 }

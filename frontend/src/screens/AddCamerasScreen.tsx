@@ -1,11 +1,14 @@
 import React, { FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useNotifications } from "../ui/NotificationsProvider";
 import { CameraTypeSelect } from "../ui/CameraTypeSelect";
 
 type Discovered = {
   id: number;
   name: string;
+  hostname?: string;
+  port?: number;
+  path?: string;
   xaddr?: string;
 };
 
@@ -14,6 +17,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 export function AddCamerasScreen() {
   const [discovering, setDiscovering] = useState(false);
   const [results, setResults] = useState<Discovered[]>([]);
+  const [discoverError, setDiscoverError] = useState<string | null>(null);
   const [protocol, setProtocol] = useState("rtsp");
   const isHttp = protocol === "http";
   const navigate = useNavigate();
@@ -21,13 +25,20 @@ export function AddCamerasScreen() {
 
   const handleDiscover = async () => {
     setDiscovering(true);
+    setDiscoverError(null);
     try {
       const res = await fetch(`${API_BASE}/cameras/discover`);
       const data = await res.json();
+      if (!res.ok) {
+        setResults([]);
+        setDiscoverError(data?.error || "No se pudo buscar cámaras en la red");
+        return;
+      }
       setResults(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error("Error discovering cameras", e);
       setResults([]);
+      setDiscoverError("No se pudo buscar cámaras en la red");
     } finally {
       setDiscovering(false);
     }
@@ -36,7 +47,26 @@ export function AddCamerasScreen() {
   useEffect(() => {
     // descubrimiento inicial opcional
     handleDiscover().catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const [searchParams] = useSearchParams();
+  const prefill = {
+    name: searchParams.get("name") ?? "",
+    ip: searchParams.get("ip") ?? "",
+    port: searchParams.get("port") ?? "",
+    path: searchParams.get("path") ?? "",
+  };
+  const formKey = searchParams.toString();
+
+  const prefillForm = (d: Discovered) => {
+    const params = new URLSearchParams();
+    if (d.name) params.set("name", d.name);
+    if (d.hostname) params.set("ip", d.hostname);
+    if (d.port) params.set("port", String(d.port));
+    if (d.path) params.set("path", d.path);
+    navigate(`/cameras/add?${params.toString()}`);
+  };
 
   const handleManualSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,6 +82,7 @@ export function AddCamerasScreen() {
       password: isHttp ? undefined : (formData.get("password") as string) || undefined,
       protocol,
       streamPath: isHttp ? (formData.get("streamPath") as string) || "/" : undefined,
+      onvifPath: isHttp ? undefined : prefill.path || undefined,
     };
     try {
       const res = await fetch(`${API_BASE}/cameras`, {
@@ -61,6 +92,7 @@ export function AddCamerasScreen() {
       });
       if (!res.ok) throw new Error("No se pudo crear la cámara");
       form.reset();
+      if (prefill.ip) navigate("/cameras/add", { replace: true });
       showToast("Cámara guardada correctamente.", "success");
     } catch (e) {
       console.error("Error saving camera", e);
@@ -117,16 +149,43 @@ export function AddCamerasScreen() {
                 padding: "8px 10px",
                 borderRadius: 12,
                 border: "1px solid #1F2937",
-                backgroundColor: "#020617"
+                backgroundColor: "#020617",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
               }}
             >
-              <div style={{ fontSize: 13, fontWeight: 600 }}>{d.name}</div>
-              {d.xaddr && (
-                <div style={{ fontSize: 11, color: "#64748B" }}>{d.xaddr}</div>
-              )}
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{d.name}</div>
+                {d.xaddr && (
+                  <div style={{ fontSize: 11, color: "#64748B", overflowWrap: "anywhere" }}>{d.xaddr}</div>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => prefillForm(d)}
+                style={{
+                  height: 32,
+                  padding: "0 14px",
+                  borderRadius: 999,
+                  border: "none",
+                  backgroundColor: "#5CBD80",
+                  color: "#022C22",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              >
+                Agregar
+              </button>
             </div>
           ))}
-          {results.length === 0 && (
+          {discoverError && (
+            <p style={{ fontSize: 12, color: "#F87171" }}>{discoverError}</p>
+          )}
+          {!discoverError && results.length === 0 && (
             <p style={{ fontSize: 12, color: "#6B7280" }}>
               Aún no se han detectado cámaras ONVIF.
             </p>
@@ -137,20 +196,26 @@ export function AddCamerasScreen() {
       <section>
         <h3 style={{ fontSize: 13, marginBottom: 8 }}>Agregar manualmente</h3>
         <form
+          key={formKey}
           onSubmit={handleManualSubmit}
           style={{ display: "flex", flexDirection: "column", gap: 10 }}
         >
+          {prefill.ip && (
+            <p style={{ fontSize: 12, color: "#5CBD80", margin: 0 }}>
+              Cámara detectada en la red. Completa usuario y clave para guardarla.
+            </p>
+          )}
           <Field label="Nombre de la cámara">
-            <input name="name" placeholder="Ej: Cámara Entrada" />
+            <input name="name" placeholder="Ej: Cámara Entrada" defaultValue={prefill.name} />
           </Field>
           <Field label="Tipo de cámara">
             <CameraTypeSelect value={protocol} onChange={setProtocol} />
           </Field>
           <Field label="IP / Host">
-            <input name="ip" placeholder={isHttp ? "192.168.1.33" : "192.168.1.50"} />
+            <input name="ip" placeholder={isHttp ? "192.168.1.33" : "192.168.1.50"} defaultValue={prefill.ip} />
           </Field>
           <Field label="Puerto">
-            <input name="port" placeholder={isHttp ? "8081" : "554"} />
+            <input name="port" placeholder={isHttp ? "8081" : "554"} defaultValue={prefill.port} />
           </Field>
           {isHttp ? (
             <Field label="Ruta del stream">
