@@ -16,6 +16,7 @@ model Camera {
   password             String?
   protocol             String     @default("rtsp")
   rtspUrl              String?
+  streamPath           String?    // ruta HTTP de webcams, ej. "/" o "/?action=stream"
   isOnline             Boolean    @default(false)
   isSelected           Boolean    @default(false)
   lastSeenAt           DateTime?

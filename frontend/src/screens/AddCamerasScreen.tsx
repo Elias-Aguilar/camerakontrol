@@ -1,6 +1,7 @@
 import React, { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "../ui/NotificationsProvider";
+import { CameraTypeSelect } from "../ui/CameraTypeSelect";
 
 type Discovered = {
   id: number;
@@ -13,6 +14,8 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4000";
 export function AddCamerasScreen() {
   const [discovering, setDiscovering] = useState(false);
   const [results, setResults] = useState<Discovered[]>([]);
+  const [protocol, setProtocol] = useState("rtsp");
+  const isHttp = protocol === "http";
   const navigate = useNavigate();
   const { showToast } = useNotifications();
 
@@ -44,10 +47,11 @@ export function AddCamerasScreen() {
     const payload = {
       name: formData.get("name") as string,
       ip: formData.get("ip") as string,
-      port: Number(formData.get("port") || 554),
-      username: (formData.get("username") as string) || undefined,
-      password: (formData.get("password") as string) || undefined,
-      protocol: (formData.get("protocol") as string) || "rtsp",
+      port: Number(formData.get("port") || (isHttp ? 8081 : 554)),
+      username: isHttp ? undefined : (formData.get("username") as string) || undefined,
+      password: isHttp ? undefined : (formData.get("password") as string) || undefined,
+      protocol,
+      streamPath: isHttp ? (formData.get("streamPath") as string) || "/" : undefined,
     };
     try {
       const res = await fetch(`${API_BASE}/cameras`, {
@@ -139,21 +143,29 @@ export function AddCamerasScreen() {
           <Field label="Nombre de la cámara">
             <input name="name" placeholder="Ej: Cámara Entrada" />
           </Field>
+          <Field label="Tipo de cámara">
+            <CameraTypeSelect value={protocol} onChange={setProtocol} />
+          </Field>
           <Field label="IP / Host">
-            <input name="ip" placeholder="192.168.1.50" />
+            <input name="ip" placeholder={isHttp ? "192.168.1.33" : "192.168.1.50"} />
           </Field>
           <Field label="Puerto">
-            <input name="port" placeholder="554" />
+            <input name="port" placeholder={isHttp ? "8081" : "554"} />
           </Field>
-          <Field label="Usuario">
-            <input name="username" placeholder="admin" />
-          </Field>
-          <Field label="Clave">
-            <input name="password" type="password" placeholder="••••••••" />
-          </Field>
-          <Field label="Protocolo">
-            <input name="protocol" defaultValue="rtsp" />
-          </Field>
+          {isHttp ? (
+            <Field label="Ruta del stream">
+              <input name="streamPath" placeholder="/" />
+            </Field>
+          ) : (
+            <>
+              <Field label="Usuario">
+                <input name="username" placeholder="admin" />
+              </Field>
+              <Field label="Clave">
+                <input name="password" type="password" placeholder="••••••••" />
+              </Field>
+            </>
+          )}
           <button
             type="submit"
             style={{

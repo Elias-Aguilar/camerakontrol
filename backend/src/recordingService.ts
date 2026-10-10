@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import * as path from "path";
 import * as fs from "fs";
 import { getActiveWindow, parseRecordingWindowsJson } from "./recordingSchedule";
+import { buildSourceUrl } from "./cameraSource";
 
 const prisma = new PrismaClient();
 
@@ -26,16 +27,6 @@ const RECORDING_SCALE = process.env.RECORDING_SCALE ? Number(process.env.RECORDI
 const RECORDING_FPS = process.env.RECORDING_FPS ? Number(process.env.RECORDING_FPS) : 15;
 // Si "1", solo graba cámaras con isOnline=true en BD (p. ej. tras GET /cameras/:id/status). Por defecto no: isOnline suele quedar false en Docker aunque el RTSP funcione.
 const RECORDING_REQUIRE_ONLINE = process.env.RECORDING_REQUIRE_ONLINE === "1";
-
-function buildRtspUrl(camera: { ip: string; port: number; username: string | null; password: string | null; protocol: string; rtspUrl: string | null }): string | null {
-  if (camera.protocol !== "rtsp" || !camera.ip) return camera.rtspUrl;
-  const basePort = camera.port || 554;
-  const userPart =
-    camera.username && camera.password
-      ? `${encodeURIComponent(camera.username)}:${encodeURIComponent(camera.password)}@`
-      : "";
-  return `rtsp://${userPart}${camera.ip}:${basePort}/`;
-}
 
 /** Fecha calendario local YYYY-MM-DD (respeta TZ del proceso). */
 function toLocalDateStr(date: Date): string {
@@ -123,7 +114,7 @@ function secondsUntilEnd(nowMinutes: number, endMinutes: number, now: Date): num
 }
 
 async function startRecording(camera: { id: number; name: string; ip: string; port: number; username: string | null; password: string | null; protocol: string; rtspUrl: string | null }): Promise<void> {
-  const rtspUrl = buildRtspUrl(camera);
+  const rtspUrl = buildSourceUrl(camera);
   if (!rtspUrl) {
     console.warn(`[Recording] Cámara ${camera.id} sin RTSP URL, omitiendo`);
     return;
@@ -321,8 +312,8 @@ async function tick(): Promise<void> {
 
   const cameras = await prisma.camera.findMany({
     where: RECORDING_REQUIRE_ONLINE
-      ? { recordingEnabled: true, isOnline: true }
-      : { recordingEnabled: true },
+      ? { recordingEnabled: true, isOnline: true, protocol: { not: "http" } }
+      : { recordingEnabled: true, protocol: { not: "http" } },
   });
 
   const now = new Date();

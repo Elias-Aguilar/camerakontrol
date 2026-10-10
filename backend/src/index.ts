@@ -12,6 +12,80 @@ import * as fs from "fs";
 import * as net from "net";
 import { startRecordingService } from "./recordingService";
 import { normalizeRecordingWindowsInput } from "./recordingSchedule";
+import * as http from "http";
+import {
+  CAMERA_PROTOCOLS,
+  DEFAULT_HTTP_PORT,
+  DEFAULT_RTSP_PORT,
+  buildSourceUrl,
+  isHttpCamera,
+  normalizeStreamPath,
+  transportArgs,
+} from "./cameraSource";
+
+/** Campos de conexión validados para POST/PUT /cameras. */
+function parseConnectionInput(body: any): {
+  ip: string;
+  port: number;
+  username: string | null | undefined;
+  password: string | null | undefined;
+  protocol: string;
+  streamPath: string | null;
+  rtspUrl: string | null | undefined;
+} {
+  const protocol = (CAMERA_PROTOCOLS as readonly string[]).includes(body.protocol) ? body.protocol : "rtsp";
+  const isHttp = protocol === "http";
+  const port = Number(body.port) || (isHttp ? DEFAULT_HTTP_PORT : DEFAULT_RTSP_PORT);
+  const username: string | null | undefined = isHttp ? null : body.username || undefined;
+  const password: string | null | undefined = isHttp ? null : body.password || undefined;
+  const streamPath = isHttp ? normalizeStreamPath(body.streamPath) : null;
+  const rtspUrl = isHttp
+    ? null
+    : buildSourceUrl({ ip: body.ip, port, username: username ?? null, password: password ?? null, protocol, rtspUrl: null }) ??
+      undefined;
+  return { ip: body.ip, port, username, password, protocol, streamPath, rtspUrl };
+}
+
+/** Reenvía el MJPEG de una webcam HTTP tal cual, sin re-codificar. */
+function proxyMjpegStream(url: string, cameraId: number, req: express.Request, res: express.Response): void {
+  let closed = false;
+  const upstreamReq = http.get(url, { timeout: 5000 }, (upstream) => {
+    if (closed) {
+      upstream.destroy();
+      return;
+    }
+    if (upstream.statusCode !== 200) {
+      upstream.resume();
+      console.error(`[Stream] Webcam cam ${cameraId} respondió ${upstream.statusCode}`);
+      if (!res.headersSent) res.status(502).json({ error: "La webcam no entregó el stream" });
+      return;
+    }
+    upstreamReq.setTimeout(0);
+    res.setHeader("Content-Type", upstream.headers["content-type"] || "multipart/x-mixed-replace");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    upstream.pipe(res);
+    upstream.on("end", () => {
+      if (!res.writableEnded) res.end();
+    });
+  });
+
+  upstreamReq.on("timeout", () => upstreamReq.destroy(new Error("timeout")));
+  upstreamReq.on("error", (err) => {
+    if (closed) return;
+    console.error(`[Stream] Webcam cam ${cameraId}:`, err.message);
+    if (!res.headersSent) res.status(502).json({ error: "No se pudo conectar con la webcam" });
+    else if (!res.writableEnded) res.end();
+  });
+
+  const cleanup = () => {
+    if (closed) return;
+    closed = true;
+    upstreamReq.destroy();
+  };
+  req.on("close", cleanup);
+  res.on("close", cleanup);
+}
 
 function checkCameraReachable(ip: string, port: number, timeoutMs = 3000): Promise<boolean> {
   return new Promise((resolve) => {
@@ -79,30 +153,17 @@ app.get("/cameras/discover", async (_req, res) => {
 
 app.post("/cameras", async (req, res) => {
   try {
-    const { name, ip, port, username, password, protocol, recordingEnabled, recordingWindows, recordingFragmentMinutes, retentionDays } = req.body;
-
-    // Construimos la RTSP URL a partir de los datos
-    const basePort = 554; // puerto RTSP t?pico
-    const userPart =
-      username && password
-        ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@`
-        : "";
-    const rtspUrl =
-      protocol === "rtsp" && ip
-        ? `rtsp://${userPart}${ip}:${basePort}/`
-        : null;
+    const { name, recordingEnabled, recordingWindows, recordingFragmentMinutes, retentionDays } = req.body;
+    const conn = parseConnectionInput(req.body);
 
     const camera = await prisma.camera.create({
       data: {
         name,
-        ip,
-        port: port ? Number(port) : basePort,
-        username,
-        password,
-        protocol: protocol || "rtsp",
-        rtspUrl: rtspUrl ?? undefined,
+        ...conn,
         isOnline: true,
-        ...(recordingEnabled !== undefined && { recordingEnabled: Boolean(recordingEnabled) }),
+        ...(isHttpCamera(conn)
+          ? { recordingEnabled: false }
+          : recordingEnabled !== undefined && { recordingEnabled: Boolean(recordingEnabled) }),
         ...(recordingWindows !== undefined && {
           recordingWindows: normalizeRecordingWindowsInput(recordingWindows) ?? [],
         }),
@@ -163,29 +224,17 @@ app.put("/cameras/:id", async (req, res) => {
     return res.status(400).json({ error: "ID inv?lido" });
   }
   try {
-    const { name, ip, port, username, password, protocol, recordingEnabled, recordingWindows, recordingFragmentMinutes, retentionDays } = req.body;
-
-    const basePort = 554;
-    const userPart =
-      username && password
-        ? `${encodeURIComponent(username)}:${encodeURIComponent(password)}@`
-        : "";
-    const rtspUrl =
-      protocol === "rtsp" && ip
-        ? `rtsp://${userPart}${ip}:${basePort}/`
-        : null;
+    const { name, recordingEnabled, recordingWindows, recordingFragmentMinutes, retentionDays } = req.body;
+    const conn = parseConnectionInput(req.body);
 
     const camera = await prisma.camera.update({
       where: { id },
       data: {
         name,
-        ip,
-        port: port ? Number(port) : basePort,
-        username,
-        password,
-        protocol: protocol || "rtsp",
-        rtspUrl: rtspUrl ?? undefined,
-        ...(recordingEnabled !== undefined && { recordingEnabled: Boolean(recordingEnabled) }),
+        ...conn,
+        ...(isHttpCamera(conn)
+          ? { recordingEnabled: false }
+          : recordingEnabled !== undefined && { recordingEnabled: Boolean(recordingEnabled) }),
         ...(recordingWindows !== undefined && {
           recordingWindows: normalizeRecordingWindowsInput(recordingWindows) ?? [],
         }),
@@ -255,22 +304,17 @@ app.get("/cameras/:id/stream", async (req, res) => {
       return res.status(404).json({ error: "C?mara no encontrada" });
     }
 
-    const basePort = camera.port || 554;
-    const userPart =
-      camera.username && camera.password
-        ? `${encodeURIComponent(camera.username)}:${encodeURIComponent(
-            camera.password
-          )}@`
-        : "";
-    const rtspUrl =
-      camera.protocol === "rtsp" && camera.ip
-        ? `rtsp://${userPart}${camera.ip}:${basePort}/`
-        : camera.rtspUrl;
+    const rtspUrl = buildSourceUrl(camera);
 
     if (!rtspUrl) {
       return res
         .status(400)
         .json({ error: "Esta c?mara no tiene RTSP URL configurada" });
+    }
+
+    if (isHttpCamera(camera)) {
+      proxyMjpegStream(rtspUrl, id, req, res);
+      return;
     }
 
     // Configurar headers para MJPEG streaming
@@ -370,17 +414,7 @@ app.get("/cameras/:id/snapshot", async (req, res) => {
       return res.status(404).json({ error: "C?mara no encontrada" });
     }
 
-    const basePort = 554;
-    const userPart =
-      camera.username && camera.password
-        ? `${encodeURIComponent(camera.username)}:${encodeURIComponent(
-            camera.password
-          )}@`
-        : "";
-    const rtspUrl =
-      camera.protocol === "rtsp"
-        ? `rtsp://${userPart}${camera.ip}:${basePort}/`
-        : camera.rtspUrl;
+    const rtspUrl = buildSourceUrl(camera);
 
     if (!rtspUrl) {
       return res
@@ -394,8 +428,7 @@ app.get("/cameras/:id/snapshot", async (req, res) => {
     const ffmpegCmd = process.env.FFMPEG_PATH || "ffmpeg";
 
     const proc = spawn(ffmpegCmd, [
-      "-rtsp_transport",
-      "tcp",
+      ...transportArgs(camera),
       "-i",
       rtspUrl,
       "-frames:v",

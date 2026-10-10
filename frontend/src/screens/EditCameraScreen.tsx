@@ -2,6 +2,7 @@ import React, { FormEvent, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotifications } from "../ui/NotificationsProvider";
 import { Time24Select } from "../ui/Time24Select";
+import { CameraTypeSelect } from "../ui/CameraTypeSelect";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:4001";
 
@@ -15,6 +16,7 @@ type Camera = {
   username?: string | null;
   password?: string | null;
   protocol: string;
+  streamPath?: string | null;
   recordingEnabled?: boolean;
   recordingWindows?: RecordingWindow[] | null;
   recordingFragmentMinutes?: number | null;
@@ -42,6 +44,8 @@ export function EditCameraScreen() {
   const { showToast } = useNotifications();
   const [camera, setCamera] = useState<Camera | null>(null);
   const [recordingWindows, setRecordingWindows] = useState<RecordingWindow[]>([{ ...DEFAULT_SLOT }]);
+  const [protocol, setProtocol] = useState("rtsp");
+  const isHttp = protocol === "http";
 
   useEffect(() => {
     if (!id) return;
@@ -49,6 +53,7 @@ export function EditCameraScreen() {
       .then((r) => r.json())
       .then((c: Camera) => {
         setCamera(c);
+        setProtocol(c.protocol === "http" ? "http" : "rtsp");
         setRecordingWindows(parseWindowsFromCamera(c.recordingWindows));
       })
       .catch((e) => console.error("Error loading camera", e));
@@ -74,13 +79,17 @@ export function EditCameraScreen() {
     e.preventDefault();
     if (!id) return;
     const formData = new FormData(e.currentTarget);
-    const payload = {
+    const connection = {
       name: formData.get("name") as string,
       ip: formData.get("ip") as string,
-      port: Number(formData.get("port") || 554),
-      username: (formData.get("username") as string) || undefined,
-      password: (formData.get("password") as string) || undefined,
-      protocol: (formData.get("protocol") as string) || "rtsp",
+      port: Number(formData.get("port") || (isHttp ? 8081 : 554)),
+      username: isHttp ? undefined : (formData.get("username") as string) || undefined,
+      password: isHttp ? undefined : (formData.get("password") as string) || undefined,
+      protocol,
+      streamPath: isHttp ? (formData.get("streamPath") as string) || "/" : undefined,
+    };
+    const payload = isHttp ? connection : {
+      ...connection,
       recordingEnabled: (formData.get("recordingEnabled") as string) === "on",
       recordingWindows: recordingWindows
         .filter((s) => s.start && s.end && s.start !== s.end)
@@ -143,26 +152,39 @@ export function EditCameraScreen() {
         <Field label="Nombre de la cámara">
           <input name="name" defaultValue={camera.name} />
         </Field>
+        <Field label="Tipo de cámara">
+          <CameraTypeSelect value={protocol} onChange={setProtocol} />
+        </Field>
         <Field label="IP / Host">
           <input name="ip" defaultValue={camera.ip} />
         </Field>
         <Field label="Puerto">
-          <input name="port" defaultValue={String(camera.port)} />
+          <input name="port" defaultValue={String(camera.port)} placeholder={isHttp ? "8081" : "554"} />
         </Field>
-        <Field label="Usuario">
-          <input name="username" defaultValue={camera.username ?? ""} />
-        </Field>
-        <Field label="Clave">
-          <input
-            name="password"
-            type="password"
-            defaultValue={camera.password ?? ""}
-          />
-        </Field>
-        <Field label="Protocolo">
-          <input name="protocol" defaultValue={camera.protocol} />
-        </Field>
+        {isHttp ? (
+          <Field label="Ruta del stream">
+            <input name="streamPath" defaultValue={camera.streamPath ?? "/"} placeholder="/" />
+          </Field>
+        ) : (
+          <>
+            <Field label="Usuario">
+              <input name="username" defaultValue={camera.username ?? ""} />
+            </Field>
+            <Field label="Clave">
+              <input
+                name="password"
+                type="password"
+                defaultValue={camera.password ?? ""}
+              />
+            </Field>
+          </>
+        )}
 
+        {isHttp ? (
+          <p style={{ fontSize: 11, color: "#6B7280", margin: 0 }}>
+            Las webcams HTTP son solo de vista en vivo: no se graban.
+          </p>
+        ) : (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #1F2937" }}>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Grabación programada</div>
           <Field label="Activar grabación">
@@ -308,6 +330,7 @@ export function EditCameraScreen() {
             Días a conservar las grabaciones. Vacío = sin límite.
           </p>
         </div>
+        )}
 
         <button
           type="submit"
