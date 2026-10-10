@@ -8,6 +8,7 @@ RUN npm ci
 
 COPY tsconfig.json vite.config.ts index.html ./
 COPY src ./src
+COPY public ./public
 
 # Inyectada en el bundle en build time (debe ser la URL que el navegador usa para el API).
 ARG VITE_API_BASE=http://localhost:4000
