@@ -56,10 +56,13 @@ function CameraStreamTile({
   onStreamError,
   showExpand = true,
   onRegisterAbort,
+  fillCell = false,
 }: {
   camera: Camera;
   streamKey: number;
   expanded?: boolean;
+  /** Ocupa toda la celda de la grilla en lugar de imponer 16:9. */
+  fillCell?: boolean;
   onExpand?: () => void;
   onCollapse?: () => void;
   onStreamError?: () => void;
@@ -86,9 +89,9 @@ function CameraStreamTile({
         overflow: "hidden",
         border: expanded ? "none" : "1px solid #1F2937",
         backgroundColor: "#020617",
-        aspectRatio: expanded ? undefined : "16 / 9",
+        aspectRatio: expanded || fillCell ? undefined : "16 / 9",
         width: "100%",
-        height: expanded ? "100%" : undefined,
+        height: expanded || fillCell ? "100%" : undefined,
         flex: expanded ? 1 : undefined,
         minHeight: 0,
       }}
@@ -329,11 +332,12 @@ export function LiveViewScreen() {
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr",
-          gridTemplateRows: "1fr 1fr",
+          gridTemplateRows: isDesktop ? "1fr 1fr" : undefined,
           gap: 8,
-          width: "100%",
+          // En escritorio la grilla 2x2 entra entera en la ventana: el ancho se limita por la altura disponible.
+          width: isDesktop ? "min(100%, calc((100vh - 220px) * 16 / 9))" : "100%",
           aspectRatio: isDesktop ? "16 / 9" : undefined,
-          minHeight: isDesktop ? undefined : 280,
+          margin: "0 auto",
         }}
       >
         {cameras.map((cam) => (
@@ -344,6 +348,7 @@ export function LiveViewScreen() {
             onStreamError={handleStreamError}
             showExpand={false}
             onRegisterAbort={registerStreamAbort}
+            fillCell={isDesktop}
           />
         ))}
       </div>
@@ -420,15 +425,14 @@ export function LiveViewScreen() {
         maxWidth: isDesktop ? 1280 : "100%",
         margin: "0 auto",
         padding: isDesktop ? "2rem 1.5rem" : "1rem",
-        height: cameraCount >= 3 && isDesktop ? "calc(100vh - 4rem)" : undefined,
-        display: cameraCount >= 3 && isDesktop ? "flex" : undefined,
-        flexDirection: cameraCount >= 3 && isDesktop ? "column" : undefined,
       }}
     >
       <button
         type="button"
         onClick={handleBack}
         style={{
+          display: "block",
+          padding: 0,
           marginBottom: 8,
           fontSize: 12,
           color: "#9CA3AF",
@@ -476,16 +480,7 @@ export function LiveViewScreen() {
       {error && <p style={{ fontSize: 13, color: "#F87171" }}>{error}</p>}
 
       {!loading && !error && (
-        <div
-          style={{
-            flex: cameraCount >= 3 ? 1 : undefined,
-            minHeight: 0,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {renderStreamLayout()}
-        </div>
+        <div>{renderStreamLayout()}</div>
       )}
 
       {isSingleView && cameras.length > 0 && !error && (

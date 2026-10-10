@@ -1,3 +1,9 @@
+/* Fondo oscuro también fuera del contenedor de la app (Bootstrap pone el body en blanco) */
+html,
+body {
+  background-color: #082610;
+}
+
 /* Ajustes mínimos: modales/toasts coherentes con la app oscura */
 .modal-content {
   background-color: #0f172a;
