@@ -17,6 +17,7 @@ model Camera {
   protocol             String     @default("rtsp")
   rtspUrl              String?
   streamPath           String?    // ruta HTTP de webcams, ej. "/" o "/?action=stream"
+  onvifPath            String?    // ruta ONVIF del XAddr para cámaras RTSP descubiertas en la red
   isOnline             Boolean    @default(false)
   isSelected           Boolean    @default(false)
   lastSeenAt           DateTime?

@@ -7,6 +7,14 @@
 
 services:
   backend:
+    # Red del host: el descubrimiento ONVIF usa multicast UDP (239.255.255.250:3702),
+    # que no atraviesa la red bridge de Docker. Solo en Linux; en Docker Desktop para
+    # Windows no funciona y el descubrimiento queda sin soporte (usar alta manual).
+    network_mode: host
+    # Con red de host no hay DNS de Compose: db se alcanza por el puerto publicado en el host.
+    environment:
+      DATABASE_URL: postgresql://camerakontrol:camerakontrol@127.0.0.1:5433/camerakontrol
+    ports: []
     volumes:
       - /home/eaguilar/apps/data/camerakontrol:/app/recordings
 
